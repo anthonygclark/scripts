@@ -3,7 +3,7 @@ PASTE_DIR=~/web/paste
 SERVER=http://aclarkdev.dyndns.org/paste
 
 usage(){
-  echo "$0 <file.extention>"
+  echo "$(basename $0) <file.extention>"
   exit 1
 }
 
