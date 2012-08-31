@@ -1,0 +1,32 @@
+#!/bin/bash
+
+PASTE_DIR=~/web/paste
+SERVER=http://aclarkdev.dyndns.org/paste
+
+export DIR_BASE=$PASTE_DIR/PASTE.XXXX PASTE=paste
+
+DEST=$PASTE_DIR
+FILE=$1
+
+# If -d is provided, change the dest to the tmp dir
+# and move the FILE pointer to arg2
+if [ "$1" == "-d" ]; then
+  tmp=$(mktemp -d $DIR_BASE)
+  DEST=$tmp
+  FILE=$2
+fi
+
+
+filetype(){
+  local ext=${1##*.}
+  echo $ext
+}
+
+
+FT=`filetype $FILE`
+cat $FILE | highlight -S $FT --inline-css > $DEST/index.html || echo "failed";exit 1
+
+
+# Fix perms
+chmod 777 $DEST -R
+echo "$SERVER/$(basename $DEST)/index.html"

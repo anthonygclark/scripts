@@ -9,6 +9,13 @@
 DHCP_OUT=eth0
 WAN_IN=eth1
 
-sudo iptables -A FORWARD -o ${DHCP_OUT} -i ${WAN_IN} -s 192.168.1.0/24 -m conntrack --ctstate NEW -j ACCEPT
-sudo iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -A POSTROUTING -t nat -j MASQUERADE
+if [ "$(id -u)" != "0" ]; then
+cat << EOF
+Run as root.
+EOF
+  exit 1
+fi
+
+iptables -A FORWARD -o ${DHCP_OUT} -i ${WAN_IN} -s 192.168.1.0/24 -m conntrack --ctstate NEW -j ACCEPT
+iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A POSTROUTING -t nat -j MASQUERADE

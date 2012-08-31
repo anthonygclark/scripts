@@ -23,5 +23,5 @@ PORT=${2:-1234}
 IP=$(ifconfig -a | awk '/(cast)/ { print $2 }' | cut -d':' -f2 | head -1)
 
 #Runs VLC
-vlc -vvv -I http "$1" --sout '#standard{access=http,mux=ts,dst='$IP':'$PORT'}' #> /dev/null 2>&1
+vlc -vvv -I http --http-host=$IP "$1" --sout '#standard{access=http,mux=ts,dst='$IP':'$PORT'}' #> /dev/null 2>&1
 

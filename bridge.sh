@@ -18,7 +18,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Variables
-interface=eth0
+interface=wlan0
 bridge=br0
 tap=tap0
 group=vboxusers
@@ -32,8 +32,8 @@ legal=true
 usage(){
 cat << EOF
 Usage: `basename $0` [OPTION]"
-  -u  bridge up"
-  -b  bridge down"
+  -u  bridge up
+  -d  bridge down
   -h  help"
 EOF
 }
