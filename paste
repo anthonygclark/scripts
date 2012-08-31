@@ -27,7 +27,7 @@ fail(){
 }
 
 FT=`filetype $FILE`
-highlight --style=moria -S $FT -I --inline-css -i $FILE > $DEST/index.html || fail
+highlight --style=moria -S $FT -I --inline-css -i $FILE -T $(basename $FILE) > $DEST/index.html || fail
 
 # Fix perms
 chmod 777 $DEST -R
