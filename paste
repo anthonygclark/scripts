@@ -22,10 +22,14 @@ filetype(){
   echo $ext
 }
 
+fail(){
+  echo "failed"
+  exit 1
+}
+
 
 FT=`filetype $FILE`
-cat $FILE | highlight -S $FT --inline-css > $DEST/index.html || echo "failed";exit 1
-
+cat $FILE | highlight -S $FT --inline-css > $DEST/index.html || fail
 
 # Fix perms
 chmod 777 $DEST -R
