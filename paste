@@ -1,21 +1,19 @@
 #!/bin/bash
-
 PASTE_DIR=~/web/paste
 SERVER=http://aclarkdev.dyndns.org/paste
 
-export DIR_BASE=$PASTE_DIR/PASTE.XXXX PASTE=paste
+usage(){
+  echo "$0 <file.extention>"
+  exit 1
+}
 
-DEST=$PASTE_DIR
+[ $# -ne 1 ] && usage
+
+export DIR_BASE=$PASTE_DIR/PASTE.XXXX
+
+tmp=$(mktemp -d $DIR_BASE)
+DEST=$tmp
 FILE=$1
-
-# If -d is provided, change the dest to the tmp dir
-# and move the FILE pointer to arg2
-if [ "$1" == "-d" ]; then
-  tmp=$(mktemp -d $DIR_BASE)
-  DEST=$tmp
-  FILE=$2
-fi
-
 
 filetype(){
   local ext=${1##*.}
@@ -23,13 +21,13 @@ filetype(){
 }
 
 fail(){
-  echo "failed"
+  echo "Failed."
+  rm -r $DEST
   exit 1
 }
 
-
 FT=`filetype $FILE`
-cat $FILE | highlight -S $FT --inline-css > $DEST/index.html || fail
+highlight --style=moria -S $FT -I --inline-css -i $FILE > $DEST/index.html || fail
 
 # Fix perms
 chmod 777 $DEST -R
