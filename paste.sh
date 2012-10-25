@@ -26,8 +26,26 @@ fail(){
   exit 1
 }
 
-FT=`filetype $FILE`
-highlight --style=moria -S $FT -I --inline-css -i $FILE -T $(basename $FILE) > $DEST/index.html || fail
+_highlight() {
+  FT=`filetype $FILE`
+  highlight --style=moria -S $FT -I --inline-css -i $FILE -T $(basename $FILE) > $DEST/index.html 
+}
+
+_highlight_default(){
+  echo "Defaulting to plain-text"
+  highlight --style=moria -S txt -I --inline-css -i $FILE -T $(basename $FILE) > $DEST/index.html 
+}
+
+# Highlight according to filetype
+_highlight || _highlight_default || fail
+
+# Move source to Destination dir
+cp $FILE $DEST || fail
+
+# Insert download link
+sed -e "7i\\<a href=\"$(basename $FILE)\" style=\"color:#202020; background-color:#a8a8a8; text-decoration:None; padding:5px\">Download</a>" < $DEST/index.html > /tmp/__index.html || fail
+
+mv /tmp/__index.html $DEST/index.html || fail
 
 # Fix perms
 chmod 777 $DEST -R

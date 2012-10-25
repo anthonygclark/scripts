@@ -13,6 +13,7 @@ FILES=(
 "/home/anthony/.vim"
 "/home/anthony/.Xdefaults"
 "/home/anthony/.bashrc"
+"/home/anthony/.gitconfig"
 )
 
 for i in "${FILES[@]}" 

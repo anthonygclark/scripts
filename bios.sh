@@ -44,7 +44,7 @@ check(){
   }
   # Check for unzip
   command -v unzip >/dev/null 2>&1 || { 
-    echo >&2 "I require \"dos2unix\" but it's not installed.  Aborting." 
+    echo >&2 "I require \"unzip\" but it's not installed.  Aborting." 
     exit 5; 
   }
   # Check for unzip
@@ -56,8 +56,8 @@ check(){
 
 # Post Run function
 post_func(){
-echo "Add the following to GRUB4DOS menu.lst for booting ISO"
-echo
+  echo "Add the following to GRUB4DOS menu.lst for booting ISO"
+  echo
 cat << EOF 
   title FreeDos BIOS Update
   find --set-root /`basename $out`
@@ -67,7 +67,7 @@ cat << EOF
   chainloader (0xff)
   boot
 EOF
-echo
+  echo
 }
 
 # Main
@@ -76,7 +76,7 @@ main () {
   while getopts :o:d:a Opt; do
     case $Opt in
       o) out=$OPTARG;;
-      d) inc=$OPTARG;target=`basename $inc`;exe=`ls $inc | grep -i .exe | head -1`;;
+      d) inc=$OPTARG;target=`basename $inc`; exe=`ls $inc | grep -i .exe | head -1`;;
       a) auto=1;;
      \?) help; exit;;
     esac

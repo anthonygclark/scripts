@@ -32,14 +32,10 @@ Server(){
 [ $# -eq 0 ] && usage && exit 1
 
 
-NC_ARGS="-l -p $port"
-nc -h 2>&1 | grep "OpenBSD netcat" && NC_ARGS="-l $port"
+nc.openbsd -h 2>&1 | grep "OpenBSD netcat" && NC_ARGS="-l -p $port"
 
 
 filename="$(basename $1)"
-while Server "$1" | nc $NC_ARGS | eval $(Request); do
-  s="## Sent $1 $(date)"
-  echo $s
-  # If you have NOTIFICATIONS in linux, this line below notifies you when someone downloads
-  #echo $s | while read SPAM_OUT; do notify-send "$SPAM_OUT"; done
+while Server "$1" | nc.openbsd $NC_ARGS | eval $(Request); do
+  echo "## Sent $1 $(date)"
 done
