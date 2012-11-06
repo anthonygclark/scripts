@@ -1,5 +1,0 @@
-#!/bin/bash
-# Anthony Clark
-# Shortcut launcher for google tasks
-
-chromium --app="https://mail.google.com/tasks/ig"

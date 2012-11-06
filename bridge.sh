@@ -31,10 +31,10 @@ legal=true
 
 usage(){
 cat << EOF
-Usage: `basename $0` [OPTION]"
+Usage: `basename $0` [OPTION]
   -u  bridge up
   -d  bridge down
-  -h  help"
+  -h  help
 EOF
 }
 
@@ -103,9 +103,11 @@ while getopts "udh" opt; do
       ;;
     h)
       usage
+      exit 1
       ;;   
     \?)
       usage
+      exit 1
       ;;
   esac
 done

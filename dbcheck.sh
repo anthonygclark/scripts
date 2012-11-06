@@ -18,5 +18,7 @@ elif [[ $res =~ "isn't" ]]; then
   echo "OFF"
 elif [[ $res =~ "Index" ]]; then
   echo "indexing"
+elif [[ $res =~ "Connecting" ]]; then
+  echo "OFF"
 fi
 exit 0

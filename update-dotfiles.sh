@@ -14,6 +14,7 @@ FILES=(
 "/home/anthony/.Xdefaults"
 "/home/anthony/.bashrc"
 "/home/anthony/.gitconfig"
+"/home/anthony/.screenrc"
 )
 
 for i in "${FILES[@]}" 
