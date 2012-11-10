@@ -1,19 +1,13 @@
 #!/usr/bin/env python2
 import sys, datetime, subprocess, string, random, os, shutil
 
+# Anthony Clark
 # Simple paste service.
-#
-# Requirements:
-#
-#    bootstrap.min.css
-
+# Requires: bootstrap.min.css
 
 ############## 
-# Location of the output
 PASTE_DIR = "/home/anthony/web/paste"
-# Shortcut to be displayed on success
 SERVER    = "http://aclarkdev.dyndns.org/paste"
-# Location of bootstrap css file in relation to the paste
 BOOTSTRAP_LOCATION = "../../static/bootstrap.min.css"
 ##############
 
@@ -30,9 +24,10 @@ DIV_WRAPPER=\
     <div class="navbar-inner">
     <a class="brand" href="#">{0}</a>
     <a class="btn btn-info" href="{0}">Download</a>
-    <span class="label label-inverse">size: {1}</span>
-    <span class="label label-inverse">lines: {2}</span>
-    <span class="label label-inverse">{3}</span>
+    <span class="label label-success">{1}</span>
+    <span class="label label-inverse">size: {2}</span>
+    <span class="label label-inverse">lines: {3}</span>
+    <span class="label label-inverse">{4}</span>
     </div>
   </div>
 <body>
@@ -46,6 +41,24 @@ FOOTER=\
 </html>
 """
 #############
+
+# Returns nice extension identification
+def get_extension_type(ext):
+    return {
+        "py"  : "Python",
+        "c"   : "C",
+        "cu"  : "Cuda",
+        "cuh" : "Cuda Header",
+        "cpp" : "C++",
+        "rb"  : "Ruby",
+        "sh"  : "Shell",
+        "bat" : "Batch",
+        "java": "Java",
+        "h"   : "C-Header",
+        "m"   : "Objective-C",
+        "js"  : "JavaScript",
+        "s"   : "Assembly"
+    }.get(ext, "Plain-Text")
 
 
 # returns filesize of a file
@@ -82,22 +95,23 @@ def mkdir(path):
 
 
 # Inserts modifications
-def insert_div(path, name, size, line_count, date):
+def insert_div(path, ext, name, size, line_count, date):
     lines = []
+    ext_name = get_extension_type(ext)
+    div = DIV_WRAPPER.format(name, ext_name, size, line_count, date)
+
+    # Remove stuff and add our div
+    # and footer
     with open(path, 'r') as inf:
         lines = inf.readlines()
-        # replace body tag
         del lines[5]
-        lines[5] = DIV_WRAPPER.format(name, size, line_count, date)
-        # remove old footer
+        lines[5] = div
         lines = lines[:-3]
-        # insert new one       
         lines.append(FOOTER)
         
+    # write to new file
     with open(path, 'w') as inf:
         inf.write(''.join(lines))       
-
-
 
 
 if __name__ == '__main__':
@@ -111,9 +125,10 @@ if __name__ == '__main__':
     _lines    = sum(1 for line in open(_file))
     _date     = datetime.datetime.now().strftime('%A, %b %d, %Y %I:%M%p')
     _size     = get_size(_file)
+
+    # Parse out extension
     try:
-        null, _ext = os.path.splitext(_file)
-        _ext = _ext[1:]
+        _ext = os.path.splitext(_file)[1][1:]
     except:
         _ext = 'txt'
 
@@ -132,9 +147,8 @@ if __name__ == '__main__':
         shutil.rmtree(_dest)
         sys.exit(2)
 
-    
-    # fix HTML/CSS
-    insert_div(_out, _basename, _size, _lines, _date)
+    # fix HTML
+    insert_div(_out, _ext, _basename, _size, _lines, _date)
 
     # Print result
     print "{}/{}".format(SERVER, os.path.basename(_dest))
