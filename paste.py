@@ -32,7 +32,7 @@ DIV_WRAPPER=\
     <a class="btn btn-info" href="{0}">Download</a>
     <span class="label label-inverse">size: {1}</span>
     <span class="label label-inverse">lines: {2}</span>
-    <span class="label">date: {3}</span>
+    <span class="label label-inverse">{3}</span>
     </div>
   </div>
 <body>
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     _file     = os.path.abspath(sys.argv[1])
     _basename = os.path.basename(_file)
     _lines    = sum(1 for line in open(_file))
-    _date     = datetime.datetime.now()
+    _date     = datetime.datetime.now().strftime('%A, %b %d, %Y %I:%M%p')
     _size     = get_size(_file)
     try:
         null, _ext = os.path.splitext(_file)
@@ -126,7 +126,6 @@ if __name__ == '__main__':
 
     # Run highlight
     try:
-        print HLCMD.format(_ext, _file, _basename, _out)
         subprocess.call(HLCMD.format(_ext, _file, _basename, _out), shell=True)
     except:
         print 'Error. Reverting'
@@ -138,4 +137,4 @@ if __name__ == '__main__':
     insert_div(_out, _basename, _size, _lines, _date)
 
     # Print result
-    print "{}/{}/{}".format(SERVER, os.path.basename(_dest), 'index.html')
+    print "{}/{}".format(SERVER, os.path.basename(_dest))
