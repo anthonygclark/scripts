@@ -66,7 +66,7 @@ def get_extension_type(ext):
         "cuh" : "Cuda Header",
         "cpp" : "C++",
         "rb"  : "Ruby",
-        "sh"  : "Shell",
+        "sh"  : "Bash",
         "bat" : "Batch",
         "java": "Java",
         "h"   : "C-Header",
@@ -135,8 +135,8 @@ def insert_div(path, data, link, text):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print "%s <file.extenstion>" % os.path.basename(sys.argv[0])
+    if len(sys.argv) < 2:
+        print "%s FILE [SYNTAX]" % os.path.basename(sys.argv[0])
         sys.exit(1)
 
     # Get file properties and extension
@@ -146,11 +146,14 @@ if __name__ == '__main__':
     _date     = datetime.datetime.now().strftime('%A, %b %d, %Y %I:%M%p')
     _size     = get_size(_file)
 
-    # Parse out extension
-    try:
+    if len(sys.argv) == 3:
+        _ext = sys.argv[2]
+    else:
+        # Parse out extension from file
         _ext = os.path.splitext(_file)[1][1:]
-    except:
-        _ext = 'txt'
+    
+    # Assure there is SOMETHING in the ext
+    if not _ext: _ext = 'txt'
 
     # Create the dir
     _dest   = mkdir(PASTE_DIR, os.path.basename(_file))
@@ -165,7 +168,7 @@ if __name__ == '__main__':
         subprocess.check_call(HLCMD.format(_ext, _file, _basename, _out), shell=True)
         subprocess.check_call(HLCMD_N.format(_ext, _file, _basename, _out_n), shell=True)
     except:
-        print 'Error. Reverting'
+        print 'Reverting.'
         shutil.rmtree(_dest)
         sys.exit(2)
 

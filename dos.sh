@@ -2,11 +2,14 @@
 #------~------~
 # Anthony Clark
 #------~------~
+# 
+# Originally taken from Sam B.
+#
 # Gives you a bootable disk with your directory directly
 # in the root of the disk. This lets you run DOS BIOS utils
-# easily.
+# or games easily.
 
-export TMPBASE=/tmp/BIOS.XXX BIOS=bios
+export TMPBASE=/tmp/DOS.XXX DOS=dos
 
 # Simple help
 help () {
@@ -59,31 +62,50 @@ post_func(){
   echo "Add the following to GRUB4DOS menu.lst for booting ISO"
   echo
 cat << EOF 
-  title FreeDos BIOS Update
-  find --set-root /`basename $out`
-  map /`basename $out` (0xff)
-  map --hook
-  root (0xff)
-  chainloader (0xff)
-  boot
+title FreeDos
+find --set-root /`basename $out`
+map /`basename $out` (0xff)
+map --hook
+root (0xff)
+chainloader (0xff)
+boot
 EOF
   echo
 }
 
+
+# Quick selection menu 
+menu () {
+  PS3="Select EXE, q to quit: "
+  cd $1
+  list=$(find . -maxdepth 1 -type f -iname *.exe)
+  
+  select exe in $list; do
+    if [ -n "$exe" ]; then
+      echo $(basename $exe)
+      break
+    fi
+    clean
+  done
+}
+
+
 # Main
 main () {
+  # Check for required deps
+  check
+  
   local out= inc= exe= auto=0 tmp=$(mktemp -d $TMPBASE)
   while getopts :o:d:a Opt; do
     case $Opt in
       o) out=$OPTARG;;
-      d) inc=$OPTARG;target=`basename $inc`; exe=`ls $inc | grep -i .exe | head -1`;;
+      d) inc=$OPTARG;target=`basename $inc`; exe=`menu $inc`;;
       a) auto=1;;
      \?) help; exit;;
     esac
   done
 
   ## Check args and fields
-  check
   [ -z "$out" -o -z "$inc" ] && help && exit 2
   [ -z "$exe" ] && echo "ERROR: No EXE was found in specified dir $inc" && help && exit 1
 
@@ -91,7 +113,7 @@ main () {
 
   ## Download and unzip FreeDos OEM Kit
   echo ">Downloading FreeDOS OEM..." >&2
-  wget -Nq http://localhost/FDOEMCD.builder.zip
+  wget -Nq http://localhost/misc/FDOEMCD.builder.zip
   
   echo ">Unarchiving..." >&2
   unzip -q FDOEMCD.builder.zip
@@ -109,6 +131,7 @@ main () {
       echo "CD $target" | tr '[:lower:]' '[:upper:]' >> ar.bat
       echo "$exe" | tr '[:lower:]' '[:upper:]' >> ar.bat
       unix2dos -n ar.bat AUTORUN.BAT > /dev/null 2>&1
+      rm ar.bat
     fi
   else
     echo "ERROR: Cannot parse relative path, add ~/ to your output directory."

@@ -1,12 +1,35 @@
 #!/bin/bash
-# Still in progress... 
+# ---~---~---~-
+# Anthony Clark
+# ---~---~---~-
+# Contributors: Sam B.
+#
 # uses nc (netcat) to host a single file over 
 # HTTP on port 8099 (or as specified)
 #
 # Provides an HTTP-compatible response on the 
-# specified port, serving the specified file only. 
+# specified port, serving the specified file only.
+#
+# There are multiple ways to download this file from
+# a client:
+#
+#    curl http://host:8099 > myFile
+#    
+#                 or
+#    
+#    Add `content-disposition=on` to ~/.wgetrc, then
+#    wget http://host:8099
+#
+#                 or
+#
+#    wget http://host:8099 -O myFile
+#
+#                 or 
+#
+#    Visit the page in a web browser
+#######################################################
 port=${2:-8099}
-
+bin="nc"
 
 usage() {
   echo "Usage: $0 <file> [<port>]"
@@ -31,11 +54,11 @@ Server(){
 
 [ $# -eq 0 ] && usage && exit 1
 
-
-nc.openbsd -h 2>&1 | grep "OpenBSD netcat" && NC_ARGS="-l -p $port"
-
+# Print intro messages
+$bin -h 2>&1 | grep "OpenBSD netcat" && NC_ARGS="-l -p $port"
+echo "Port $port"
 
 filename="$(basename $1)"
-while Server "$1" | nc.openbsd $NC_ARGS | eval $(Request); do
+while Server "$1" | $bin $NC_ARGS | eval $(Request); do
   echo "## Sent $1 $(date)"
 done

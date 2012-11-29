@@ -1,9 +1,8 @@
-
 #!/bin/bash  
+
 # AVI or any video 2 DVD iso Script  
 # DvdAuthor 7 and up needs this
 export VIDEO_FORMAT=NTSC
-# Change to "ntsc" if you'd like to create NTSC disks  
 format="ntsc"  
   
 # Check we have enough command line arguments  

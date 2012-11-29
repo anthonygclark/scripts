@@ -2,6 +2,9 @@
 # Quick hack to concat some playlists
 # The playlists I was messing with had no
 # artists/album metadata...
+#
+# This is just a hack. Only use this if you 
+# dont expect stable results, haha.
 
 import os, sys
 
@@ -22,8 +25,6 @@ elif '-h' in sys.argv or '--help' in sys.argv:
 else:
     print usage
     sys.exit(1)
-
-
 
 print 'Looking in %s to find playlists.' % inputDir
 playlists = os.listdir(inputDir)
