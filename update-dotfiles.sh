@@ -15,9 +15,15 @@ FILES=(
 "/home/anthony/.bashrc"
 "/home/anthony/.gitconfig"
 "/home/anthony/.screenrc"
+"/home/anthony/.xinitrc"
 )
 
 for i in "${FILES[@]}" 
 do
   cp -r "$i" "$REPO"
 done
+  
+rm -f $REPO/.vim/swap/*.swp 
+rm -f $REPO/.vim/swap/*.swo 
+rm -f $REPO/.vim/backup/*~  
+rm -f $REPO/.vim/backup/.*~ 
