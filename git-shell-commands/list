@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "GIT REPOS"
+echo "---------"
+ls | while read i; do
+  echo "|-- $i"
+done

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Dialog progress for targz
 # Taken from `man pv`
-[ $# -lt 2 ] && echo "Supply input files/dir and output filename.tgz" && exit 1
+[ $# -lt 2 ] && echo "$0 [outputFile.tar.gz] [list of files/dirs]" && exit 1
 
 out=$1
 shift; files=$@

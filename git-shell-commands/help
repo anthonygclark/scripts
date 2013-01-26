@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "AVAILABLE COMMANDS"
+echo "------------------"
+ls git-shell-commands | while read comm; do
+  echo "$comm"
+done | sort

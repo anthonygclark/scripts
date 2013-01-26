@@ -1,0 +1,19 @@
+#!/bin/bash
+[ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
+  echo "Usage: create <dir name>"
+  exit 1
+}
+
+[ -d "$1" ] && {
+  echo "Dir '"$1"' already exists."
+  exit 1
+}
+
+mkdir "$1" ; cd "$1"
+git init --bare
+
+echo -ne "\nDescription: "
+read desc
+echo "$desc" > description
+
+exit 0

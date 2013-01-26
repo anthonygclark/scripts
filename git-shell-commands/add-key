@@ -1,0 +1,22 @@
+#!/bin/sh
+# Read in the SSH key
+read key
+keyfile=$(mktemp)
+echo "$key" > $keyfile
+
+# Generate a fingerprint
+fingerprint=$(ssh-keygen -lf $keyfile)
+
+# Check for errors
+[ $(echo "$fingerprint" | egrep -c '(R|D)SA') -eq 0 ] {
+	echo "Error: Invalid Fingerprint"
+	rm $keyfile
+	exit 1
+}
+
+cat $keyfile >> $HOME/.ssh/authorized_keys
+rm $keyfile
+
+# Display the fingerprint for reference
+echo "Success! Added a key with the following fingerprint:"
+echo $fingerprint

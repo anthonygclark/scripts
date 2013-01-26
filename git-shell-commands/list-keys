@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "AUTHORIZED KEYS"
+echo "---------------"
+tmp=$(mktemp)
+cat $HOME/.ssh/authorized_keys | while read key; do
+  echo "$key" > $tmp
+  f=$(ssh-keygen -lf $tmp)
+  echo "$f"
+done
+rm $tmp

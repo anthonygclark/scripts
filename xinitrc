@@ -13,7 +13,8 @@ xset fp rehash
 feh --bg-tile ~/.dark_circles.png &
 
 # Conky / dzen2
-sh /home/anthony/code/scripts/conky.sh &
+#sh /home/anthony/code/scripts/conky.sh &
+sh /home/anthony/code/scripts/dzen.sh &
 
 # DWM
 while true; do
