@@ -10,10 +10,10 @@ xset +fp /usr/share/fonts/artwiz-fonts/
 xset fp rehash
 
 # Background
-feh --bg-tile ~/.dark_circles.png &
+feh --bg-center /home/anthony/code/scripts/pixels-fit.png &
 
-# Conky / dzen2
-#sh /home/anthony/code/scripts/conky.sh &
+# dzen2
+sleep 2
 sh /home/anthony/code/scripts/dzen.sh &
 
 # DWM
