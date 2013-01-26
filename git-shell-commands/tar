@@ -10,15 +10,18 @@
   exit 1
 }
 
-d=$(date +%F_%H_%M_%S)
-arg_fixed=$(echo $1 | sed 's/ /_/g')
-
-outdir=$HOME/backups ; mkdir -p $outdir
-out=$outdir/${arg_fixed}_$d.tar 
-
-tar -cf $out "$1" || {
-  echo "Backup failed"
-  exit 1
+_tar () {
+  d=$(date +%F_%H_%M_%S)
+  arg_fixed=$(echo $1 | sed 's/ /_/g')
+  
+  outdir=$HOME/backups ; mkdir -p $outdir
+  out=$outdir/${arg_fixed}_$d.tar 
+  
+  tar -cf $out "$1" || {
+    echo "Backup failed"
+    exit 1
+  }
+  echo "Backup Succeeded '$(basename $out)'"
 }
 
-echo "Backup Succeeded '$(basename $out)'"
+_tar "$1"
