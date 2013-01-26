@@ -1,0 +1,24 @@
+#!/bin/bash
+# Tars a dir to backups/
+[ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
+  echo "Usage: tar <dir>"
+  exit 1
+}
+
+[ ! -e "$1" ] && {
+  echo "'"$1"' does not exist."
+  exit 1
+}
+
+d=$(date +%F_%H_%M_%S)
+arg_fixed=$(echo $1 | sed 's/ /_/g')
+
+outdir=$HOME/backups ; mkdir -p $outdir
+out=$outdir/${arg_fixed}_$d.tar 
+
+tar -cf $out "$1" || {
+  echo "Backup failed"
+  exit 1
+}
+
+echo "Backup Succeeded '$(basename $out)'"

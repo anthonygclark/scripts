@@ -1,0 +1,7 @@
+#!/bin/bash
+# Lists Repos
+echo "GIT REPOS"
+echo "---------"
+ls -t | grep -v -E '(git-shell|backups)' | while read i; do
+  echo "|-- $i"
+done

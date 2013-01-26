@@ -1,0 +1,31 @@
+#!/bin/bash
+# Removes Repo
+error(){
+  echo "$1"
+  exit 1
+}
+
+[ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
+  echo "Usage: delete <dir name>"
+  exit 1
+}
+
+echo -ne "Delete "$1"?: "
+read ans
+
+# Attempts to prevent going outside pwd
+case "$ans" in
+  Yes|yes|y)
+    ls | grep "$1" > /dev/null
+    [ "$?" != "0" ] && error "Dir '$1' does not exist."
+    [ ! -d "$1" ] && error "Dir '$1' does not exist."
+    ./tar "$1" || error "Backup"
+    rm -r "$1" || error "Error."
+    echo "Success."
+    ;;
+  *)
+    echo "Aborted."
+    exit 1
+    ;;
+esac
+exit 0

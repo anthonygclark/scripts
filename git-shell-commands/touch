@@ -1,4 +1,5 @@
 #!/bin/bash
+# Creates Repo
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
   echo "Usage: create <dir name>"
   exit 1
@@ -15,5 +16,9 @@ git init --bare
 echo -ne "\nDescription: "
 read desc
 echo "$desc" > description
+
+echo -ne "\nOwner: "
+read owner
+echo -ne "\n[gitweb]\nowner = ${owner}\n" > config
 
 exit 0

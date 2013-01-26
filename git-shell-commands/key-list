@@ -1,4 +1,5 @@
 #!/bin/bash
+# Lists pub keys
 echo "AUTHORIZED KEYS"
 echo "---------------"
 tmp=$(mktemp)

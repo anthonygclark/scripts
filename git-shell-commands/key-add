@@ -1,5 +1,5 @@
 #!/bin/sh
-# Read in the SSH key
+# Add pub key
 read key
 keyfile=$(mktemp)
 echo "$key" > $keyfile
