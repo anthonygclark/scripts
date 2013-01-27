@@ -14,7 +14,7 @@ feh --bg-center /home/anthony/code/scripts/pixels-fit.png &
 
 # dzen2
 sleep 2
-sh /home/anthony/code/scripts/dzen.sh &
+sh /home/anthony/code/scripts/conky.sh &
 
 # DWM
 while true; do
