@@ -13,10 +13,10 @@ xset fp rehash
 feh --bg-center /home/anthony/code/scripts/pixels-fit.png &
 
 # dzen2
-sleep 2
-sh /home/anthony/code/scripts/conky.sh &
+$(sleep 2 ; sh /home/anthony/code/scripts/dzen.sh) &
 
-# DWM
+
+#DWM
 while true; do
   dbus-launch --exit-with-session dwm >/dev/null 1>&1
 done

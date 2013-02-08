@@ -5,15 +5,27 @@ REFRESH_RATE=2
 ICON_SRC="/home/anthony/code/icons"
 
 # -- Colors
-FG_COLOR="#696969"
-BG_COLOR="#121212"
-ICON_COLOR="#31658c"
+BLACK="#393939"
+RED="#da4939"
+GREEN="#519f50"
+YELLOW="#cc7833"
+BLUE="#31658c"
+MAGENTA="#9f5079"
+CYAN="#435d75"
+WHITE="#dddddd"
+GRAY="#696969"
+LIGHT_GRAY="#333333"
+DARK_GRAY="#121212"
+MED_GRAY="#2a2a2a"
+
+FG_COLOR=$GRAY
+BG_COLOR=$DARK_GRAY
+ICON_COLOR=$BLUE
 BAR_FG_COLOR=$FG_COLOR
-BAR_BG_COLOR="#333333"
-BAR_CRITICAL_COLOR="#660000"
-BAR_OFF_COLOR="#2a2a2a"
-SEPERATOR_COLOR="#2a2a2a"
-WHITE="#FFFFFF"
+BAR_BG_COLOR=$LIGHT_GRAY
+BAR_CRITICAL_COLOR=$RED
+BAR_OFF_COLOR=$MED_GRAY
+SEPERATOR_COLOR=$MED_GRAY
 
 # -- Font
 FONT="-*-cure-medium-r-*-*-12-*-*-*-*-*-*-*"
@@ -59,7 +71,7 @@ CLOCK_FORMAT="%I:%M"
 # -- clients
 
 # -- Other
-BATTERY_CRITICAL_PERCENTAGE=10
+CRITICAL_PERCENTAGE=10
 BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
 
 
@@ -69,15 +81,7 @@ icon() {
 }
 
 bar() {
-	echo $1 | gdbar $BAR_STYLE -fg $BAR_FG_COLOR -bg $BAR_BG_COLOR
-}
-
-bad_bar() {
-	echo $1 | gdbar $BAR_STYLE -fg $BAR_CRITICAL_COLOR -bg $BAR_CRITICAL_COLOR
-}
-
-off_bar() {
-	echo $1 | gdbar $BAR_STYLE -fg $BAR_OFF_COLOR -bg $BAR_OFF_COLOR
+	echo $1 | gdbar $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 #}}}
 
@@ -97,10 +101,10 @@ battery_percentage() {
 	percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
 	if [ -z "$percentage" ]; then
 		echo "AC"
-	elif [ $percentage -le $BATTERY_CRITICAL_PERCENTAGE ] ; then
-	  bad_bar "$percentage"
+	elif [ $percentage -le $CRITICAL_PERCENTAGE ] ; then
+	  bar "$percentage" $BAR_CRITICAL_COLOR
   else
-		bar "$percentage"
+		bar "$percentage" $BAR_FG_COLOR
 	fi
   echo "$percentage"
 }
@@ -109,22 +113,22 @@ battery() {
 	battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
 	echo $(battery_icon) $(battery_percentage)
 }
-
 # }}}
 
 
 # -- Wireless {{{
 wireless_quality() {
-	#quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
-  q=$(iwconfig wlan0 | grep Link | cut -d'=' -f2 | cut -d' ' -f1 | cut -d'/' -f1)
-  t=$(iwconfig wlan0 | grep Link | cut -d'=' -f2 | cut -d' ' -f1 | cut -d'/' -f2)
-  quality_bar=$(printf "%0.0f" $(echo "scale=10;($q/$t)*100" | bc))
+	quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
   if [ -z "$quality_bar" ] ; then
-    bad_bar $quality_bar
+    bar 100 $BAR_OFF_COLOR
   else
-    bar $quality_bar
+    quality_bar=$(printf "%0.0f" $(echo "scale=10;($quality_bar/70)*100" | bc))
+    if [ "$quality_bar" -le $CRITICAL_PERCENTAGE ] ; then
+      bar $quality_bar $BAR_CRITICAL_COLOR
+    else
+      bar $quality_bar $BAR_FG_COLOR
+    fi
   fi
-	echo "$quality_bar"
 }
 #}}}
 
@@ -133,9 +137,9 @@ wireless_quality() {
 volume() {
 	volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
 	if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
-		echo -n "$(off_bar $volume)"
+		echo -n "$(bar $volume $BAR_OFF_COLOR)"
 	else
-    echo -n "$(bar $volume)"
+    echo -n "$(bar $volume $BAR_FG_COLOR)"
 	fi
 }
 # }}}
@@ -189,6 +193,7 @@ net() {
   TXB=$(($TXBN))
 }
 # }}}
+
 
 while :; do
 	echo -n "$(battery) $SEP"

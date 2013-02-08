@@ -1,24 +1,25 @@
 #!/bin/bash
 # Creates Repo
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
-  echo "Usage: create <dir name>"
-  exit 1
+    echo "Usage: $(basename $0) <dir name>"
+    exit 1
 }
 
 [ -d "$1" ] && {
-  echo "Dir '"$1"' already exists."
-  exit 1
+    echo "Dir '"$1"' already exists."
+    exit 1
 }
 
 mkdir "$1" ; cd "$1"
 git init --bare
 
-echo -ne "\nDescription: "
+echo -ne "Description: "
 read desc
 echo "$desc" > description
 
-echo -ne "\nOwner: "
+echo -ne "Owner: "
 read owner
+
 echo -ne "\n[gitweb]\nowner = ${owner}\n" > config
 
 exit 0

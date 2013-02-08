@@ -2,38 +2,35 @@
 # Removes Repo
 
 error(){
-  echo "$1"
-  exit 1
+    echo "$1"
+    exit 1
 }
 
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
-  echo "Usage: delete <dir name>"
-  exit 1
+    echo "Usage: $(basename $0) <dir name>"
+    exit 1
 }
 
-echo -ne "Delete "$1"?: "
+echo -ne "Delete '"$1"' [y/n]?: "
 read ans
 
 # Attempts to prevent going outside pwd
 case "$ans" in
-  Yes|yes|y)
-    ls | grep "$1" > /dev/null
-    [ "$?" != "0" ] && error "Dir '$1' does not exist."
-    [ ! -d "$1" ] && error "Dir '$1' does not exist."
+    Yes|yes|y)
+        ls -A | grep "$1" > /dev/null
+        [ "$?" != "0" ] && error "Dir '$1' does not exist."
+        [ ! -d "$1" ] && error "'$1' is not a directory"
 
-    $HOME/git-shell-commands/tar "$1" || {
-      error "Backup Error."
-      exit 1
-    }
+        $HOME/git-shell-commands/tar "$1" || {
+            error "Backup error."
+            exit 1
+        }
 
-    rm -r "$1" || error "Error."
-    echo "Success."
-    
-    ;;
-
-  *)
-    echo "Aborted."
-    exit 1
-    ;;
+        rm -rf "$1" || error "Remove error."
+        echo "Remove succeeded."
+        ;;
+    *)
+        echo "Remove aborted."
+        ;;
 esac
 exit 0

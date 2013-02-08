@@ -7,9 +7,9 @@ echo "$key" > $keyfile
 # Generate a fingerprint
 fingerprint=`ssh-keygen -lf $keyfile` 
 [ "$?" != "0" ] && {
-  echo "Error: Not a Keyfile"
-  rm $keyfile
-  exit 1
+    echo "Error: Not a Keyfile"
+    rm $keyfile
+    exit 1
 }
 
 cat $keyfile >> $HOME/.ssh/authorized_keys

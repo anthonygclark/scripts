@@ -1,11 +1,10 @@
 #!/bin/bash
 # Print Repo Log
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
-  echo "Usage: log <dir name>"
-  exit 1
+    echo "Usage: $(basename $0) <dir name>"
+    exit 1
 }
 
 cd "$1"
 git log --pretty='format:%Cgreen%cn %Cred%ai %Creset- %s'
-echo
 exit 0

@@ -3,6 +3,6 @@
 cd git-shell-commands
 echo "AVAILABLE COMMANDS"
 echo "------------------"
-ls | while read comm; do
+ls -A | while read comm; do
   printf "%-20s %s\n" $comm "$(echo $(head -2 $comm | tail -1))"
 done | sort
