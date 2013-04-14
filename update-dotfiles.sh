@@ -24,6 +24,6 @@ do
 done
   
 rm -f $REPO/.vim/swap/*.swp 
-rm -f $REPO/.vim/swap/*.swo 
+rm -f $REPO/.vim/swap/*.swo
 rm -f $REPO/.vim/backup/*~  
 rm -f $REPO/.vim/backup/.*~ 
