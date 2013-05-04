@@ -13,7 +13,7 @@ xset fp rehash
 feh --bg-center /home/anthony/code/scripts/pixels-fit.png &
 
 # dzen2
-$(sleep 2 ; sh /home/anthony/code/scripts/dzen.sh) &
+$(sleep 2 ; sh /home/anthony/code/scripts/dzen_$(hostname).sh) &
 
 
 #DWM

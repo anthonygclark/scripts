@@ -61,7 +61,7 @@ DOWN_ICON="${ICON_SRC}/net_down_03.xbm"
 GPU_ICON="${ICON_SRC}/temp.xbm"
 
 # -- network
-IFACE=wlan0
+IFACE=enp3s0
 RXB=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
 TXB=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
  
@@ -154,16 +154,7 @@ clock() {
 
 # -- Nvidia {{{
 nvidia() {
-  lsmod | grep nvidia &>/dev/null
-  [ "$?" == "1" ] && echo "GPU: OFF" && return
-  echo -n "GPU: "
-  # what we have to do for optimus 
-  which bumblebeed >/dev/null
-  if [ "$?" == "0" ] ; then
-    echo $(nvidia-settings -query GPUCoreTemp -c :8 | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
-  else
     echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
-  fi
 }
 #}}}
 
@@ -196,14 +187,14 @@ net() {
 
 
 while :; do
-	echo -n "$(battery) $SEP"
-	echo -n "$(icon $WIRELESS_ICON) $(wireless_quality) $SEP"
-  echo -n "$(icon $HDD_ICON) $(hdd_usage home) $SEP" 
+	#echo -n "$(battery) $SEP"
+	#echo -n "$(icon $WIRELESS_ICON) $(wireless_quality) $SEP"
+    echo -n "$(icon $HDD_ICON) $(hdd_usage home) $SEP" 
 	echo -n "$(icon $MEM_ICON) $(mem_usage) $SEP"
 	echo -n "$(icon $VOLUME_ICON) $(volume) $SEP"
-  echo -n "$(icon $GPU_ICON) $(nvidia) $SEP"
-  net; echo -n " $SEP" #net has to be called without a parent echo command since it modifies globals.
-  echo "$(clock) "
+    echo -n "$(icon $GPU_ICON) $(nvidia) $SEP"
+    net; echo -n " $SEP" #net has to be called without a parent echo command since it modifies globals.
+    echo "$(clock) "
 	sleep $REFRESH_RATE
 done | dzen2 -fg $FG_COLOR -bg $BG_COLOR -ta $TEXT_ALIGNMENT -w $WIDTH -h $HEIGHT -x $X -y $Y -fn $FONT -e ''
 
