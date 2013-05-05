@@ -14,17 +14,30 @@ error(){
 echo -ne "Delete '"$1"' [y/n]?: "
 read ans
 
+
 # Attempts to prevent going outside pwd
 case "$ans" in
-    Yes|yes|y)
+    Yes|yes|YES|y)
         ls -A | grep "$1" > /dev/null
         [ "$?" != "0" ] && error "Dir '$1' does not exist."
         [ ! -d "$1" ] && error "'$1' is not a directory"
 
-        $HOME/git-shell-commands/tar "$1" || {
-            error "Backup error."
-            exit 1
-        }
+        # only ask for backup if they want to remove 
+        # repo
+        echo -ne "Backup '"$1"' [y/n]?: "
+        read bkans
+        case "$bkans" in
+            Yes|yes|YES|y)
+                $HOME/git-shell-commands/tar "$1" || {
+                        error "Backup error."
+                        exit 1
+                    }
+                ;;
+            *)
+                echo "Backup aborted."
+                ;;
+        esac
+
 
         rm -rf "$1" || error "Remove error."
         echo "Remove succeeded."
