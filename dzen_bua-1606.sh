@@ -1,4 +1,5 @@
 #!/bin/bash
+. $(readlink -m .)/dzen_common.sh
 
 # redefining icons
 BATTERY_CHARGING_ICON="[AC]"
@@ -18,6 +19,14 @@ GPU_ICON="[TMP]"
 
 ICON_SRC="/dev/null"
 IFACE=eth0
+
+BAR_EXEC=dzen2-gdbar
+BAR_STYLE="-w 33 -h 7 -o -min 0 -max 101 -nonl"
+
+# redefine icon() since we arent using xpm icons
+icon() {
+	echo "^fg($ICON_COLOR)$1^fg()"
+}
 
 while :; do
 	echo -n "$(battery) $SEP"

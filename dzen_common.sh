@@ -67,7 +67,9 @@ TXB=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
 CLOCK_FORMAT="%I:%M"
 
 CRITICAL_PERCENTAGE=10
+BAR_EXEC=gdbar # default on archlinux
 BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
+
 
 
 # -- Helpers {{{
@@ -76,7 +78,7 @@ icon() {
 }
 
 bar() {
-	echo $1 | gdbar $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
+	echo "$1" | $BAR_EXEC $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 #}}} 
 
@@ -101,7 +103,6 @@ battery_percentage() {
   else
 		bar "$percentage" $BAR_FG_COLOR
 	fi
-  echo "$percentage"
 }
 
 battery() {
