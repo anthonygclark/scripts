@@ -1,0 +1,17 @@
+background no
+out_to_console yes
+update_interval 4
+total_run_times 0
+use_spacer none
+
+TEXT
+^fg(\#31658C)^i(/home/anthony/code/icons/cpu.xbm)^fg(\#696969) ${cpu cpu0}% \
+^fg(\#31658C)^i(/home/anthony/code/icons/mem.xbm)^fg(\#696969) ${memperc}% \
+^fg(\#31658C)^i(/home/anthony/code/icons/diskette.xbm)^fg(\#696969) ${fs_used_perc /home}% \
+^fg(\#31658C)^i(/home/anthony/code/icons/temp.xbm)^fg(\#696969) ${execi 5 nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;'}c \
+^fg(\#31658C)^i(/home/anthony/code/icons/dbox.xbm)^fg(\#696969) ${execi 5 /home/anthony/code/scripts/dbcheck.sh} \
+^fg(\#31658C)^i(/home/anthony/code/icons/mail.xbm)^fg(\#696969) ${execi 180 /home/anthony/code/scripts/gmail.py} \
+${if_up eth0}^i(/home/anthony/code/icons/net_down_03.xbm) ${downspeedf eth0}Kb/s \
+^i(/home/anthony/code/icons/net_up_03.xbm) ${upspeedf eth0}Kb/s${endif} \
+^fg(\#d3d3d3)${time %I:%M}^fg(\#696969) ${exec date '+%a %b %d'}^fg(\#696969) \
+^fg(\#d3d3d3)^i(/home/anthony/code/icons/arch_10x10.xbm) ^fg(\#696969) 
