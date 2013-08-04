@@ -24,27 +24,27 @@ DIV_WRAPPER=\
 """
 <link href='%s' rel='stylesheet'>
 </head>
-<div class="container" style="min-width:1080px !important">
-  <br>
-  <div class="navbar">
-	<div class="navbar-inner">
-		<a class="brand" href="#">{0}</a>
-		<a class="btn btn-info pull-right" href="{0}">Download</a>
-		<p style="margin-top: 10px">
-			<a style="text-decoration: none !important;" href="{link}"><span class="label">{text}</span></a>
-			<span class="label label-success">{1}</span>
-			<span class="label label-inverse">{2}</span>
-			<span class="label label-inverse">{3} Lines</span>
-			<span class="label label-inverse">{4}</span>
-		</p>
-	</div>
+<div class="panel">
+  <div class="panel-heading">
+    <h3 class="panel-title">{0}</h3>
+        <br>
+		<a style="text-decoration: none !important;" href="{0}"><span class="label label-info">Download</span></a>
+		<a style="text-decoration: none !important;" href="{link}"><span class="label label-info">{text}</span></a>
+		<span class="label label-success">{1}</span>
+		<span class="label label">{2}</span>
+		<span class="label label">{3} lines</span>
+		<span class="label label">{4}</span>
   </div>
 <body>
+
 """ % (BOOTSTRAP_LOCATION)
 
 
 FOOTER=\
 """
+<div class="panel-footer">
+	<a style="text-decoration: none !important;" href="#top"><span class="label label">&uarr;</span>
+</div>
 </div>
 </body>
 </html>
