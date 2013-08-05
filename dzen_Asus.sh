@@ -1,5 +1,5 @@
 #!/bin/bash
-. $(readlink -m .)/dzen_common.sh
+. $(dirname $(readlink -m $0))/dzen_common.sh
 
 IFACE=enp3s0
 
