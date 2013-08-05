@@ -37,7 +37,7 @@ SEP="^fg($SEPERATOR_COLOR)| ^fg()"
 WIDTH=600
 HEIGHT=13
 TEXT_ALIGNMENT="right"
-currentScreenWidth=$(xrandr | grep '*' | cut -d'x' -f1)
+currentScreenWidth=$(xrandr | grep '*' | cut -d'x' -f1 | head -1)
 if [ "$TEXT_ALIGNMENT" == "right" ] ; then
   X=$(($currentScreenWidth-$WIDTH))
 else
