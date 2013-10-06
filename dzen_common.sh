@@ -37,7 +37,6 @@ SEP="^fg($SEPERATOR_COLOR)| ^fg()"
 WIDTH=600
 HEIGHT=13
 TEXT_ALIGNMENT="right"
-MONITOR_ORIENTATION="normal" # or vertical
 
 if [ "$MONITOR_ORIENTATION" = "vertical" ]; then
     MTOK="-f2"
@@ -47,9 +46,9 @@ fi
 
 currentScreenWidth=$(xrandr | grep '*' | cut -d'x' $MTOK | head -1 | awk '{print $1}')
 if [ "$TEXT_ALIGNMENT" == "right" ] ; then
-  X=$(($currentScreenWidth-$WIDTH))
+    X=$(($currentScreenWidth-$WIDTH))
 else
-  X=1
+    X=1
 fi
 Y=1
 
@@ -222,7 +221,7 @@ DB_COUNTER=0
 dbox()
 {
     if [[ $DB_COUNTER -lt 5 ]]; then
-        echo -n "$(icon $DBOX_ICON) $DB_CACHE "
+        echo -n "$(icon $DBOX_ICON) $DB_CACHE"
         DB_COUNTER=$((DB_COUNTER+1))
         return
     fi
@@ -248,7 +247,7 @@ dbox()
 
     DB_CACHE=$ech
     DB_COUNTER=0
-    echo -n "$(icon $DBOX_ICON) $DB_CACHE "
+    echo -n "$(icon $DBOX_ICON) $DB_CACHE"
 }
 # }}}
 
