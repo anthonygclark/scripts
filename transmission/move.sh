@@ -2,7 +2,6 @@
 script_dir=$(dirname $(readlink -m $0))
 cd $script_dir
 
-python2 tv_mover.py > /tmp/tv.log
-echo "EXIT: $?" 
+./tvmover.py > /tmp/tv.log
 
-bash ../refresh-plex.sh
+[ -e "refresh-plex.sh" ] && refresh-plex.sh

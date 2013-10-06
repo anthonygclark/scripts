@@ -37,7 +37,15 @@ SEP="^fg($SEPERATOR_COLOR)| ^fg()"
 WIDTH=600
 HEIGHT=13
 TEXT_ALIGNMENT="right"
-currentScreenWidth=$(xrandr | grep '*' | cut -d'x' -f1 | head -1)
+MONITOR_ORIENTATION="normal" # or vertical
+
+if [ "$MONITOR_ORIENTATION" = "vertical" ]; then
+    MTOK="-f2"
+else
+    MTOK="-f1"
+fi
+
+currentScreenWidth=$(xrandr | grep '*' | cut -d'x' $MTOK | head -1 | awk '{print $1}')
 if [ "$TEXT_ALIGNMENT" == "right" ] ; then
   X=$(($currentScreenWidth-$WIDTH))
 else
@@ -205,7 +213,46 @@ cpu() {
     PREV_TOTAL=$(($TOTAL))
     PREV_IDLE=$(($IDLE))
 }
-#}}}
+ #}}}
+
+
+# -- DBOX {{{
+DB_CACHE="..."
+DB_COUNTER=0
+dbox()
+{
+    if [[ $DB_COUNTER -lt 5 ]]; then
+        echo -n "$(icon $DBOX_ICON) $DB_CACHE "
+        DB_COUNTER=$((DB_COUNTER+1))
+        return
+    fi
+
+    local res=$(dropbox status)
+    local ech=
+
+    if [[ $res =~ "Idle" ]]; then
+        ech="idle"
+    elif [[ $res =~ "Downloading" ]]; then
+        ech="downloading"
+    elif [[ $res =~ "Uploading" ]]; then
+        ech="uploading"
+    elif [[ $res =~ "isn't" ]]; then
+        ech="OFF"
+    elif [[ $res =~ "Index" ]]; then
+        ech="indexing"
+    elif [[ $res =~ "Connecting" ]]; then
+        ech="..."
+    else
+        ech="???"
+    fi
+
+    DB_CACHE=$ech
+    DB_COUNTER=0
+    echo -n "$(icon $DBOX_ICON) $DB_CACHE "
+}
+# }}}
+
+
 
 
 # vim: foldmethod=marker : 

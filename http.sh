@@ -32,7 +32,7 @@ port=${2:-8099}
 bin="nc"
 
 usage() {
-  echo "Usage: $0 <file> [<port>]"
+  echo "Usage: $0 <file> [port]"
 }
 
 Request () { # read the incoming request, alter the response conditions

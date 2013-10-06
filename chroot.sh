@@ -9,12 +9,12 @@
 #       export DISPLAY=:1
 #
 
-CHROOT_PATH=/home/anthony/code/debian
+CHROOT_PATH=/home/aclark/.chroots/debian
 
-[ $(whoami) != "root" ] && {
+if (( UID !=0 )) ; then
     echo "Must be root."
     exit 1
-}
+fi
 
 echo "Mounting sysfs"
 mount sysfs "$CHROOT_PATH"/sys -t sysfs 

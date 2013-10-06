@@ -22,20 +22,33 @@ IFACE=eno1
 
 BAR_EXEC=gdbar # default on archlinux
 BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
-
 # redefine icon() since we arent using xpm icons
 icon() {
 	echo "^fg($ICON_COLOR)$1^fg()"
 }
 
-COUNTER=0
+MONITOR_ORIENTATION="vertical" # or vertical
+
+if [ "$MONITOR_ORIENTATION" = "vertical" ]; then
+    MTOK="-f2"
+else
+    MTOK="-f1"
+fi
+
+currentScreenWidth=$(xrandr | grep '*' | cut -d'x' $MTOK | head -1 | awk '{print $1}')
+if [ "$TEXT_ALIGNMENT" == "right" ] ; then
+  X=$(($currentScreenWidth-$WIDTH))
+else
+  X=1
+fi
+Y=1
+
 while :; do
 	echo -n "$(battery) $SEP"
     cpu; echo -n "$SEP"
     echo -n "$(icon $MEM_ICON) $(mem_usage) $SEP"
     echo -n "$(icon $HDD_ICON) $(hdd_usage '/$') $SEP" 
 	echo -n "$(icon $VOLUME_ICON) $(volume) $SEP"
-    dbox; echo -n "$SEP"
     net; echo -n " $SEP"
     echo "$(clock) "
     sleep $REFRESH_RATE

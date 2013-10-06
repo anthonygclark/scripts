@@ -1,20 +1,24 @@
 #!/bin/sh
 
+# Fix Java Swing
+wmname LG3D
+
 # Fix QT Apps
 export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Fonts
-xset +fp /usr/share/fonts/local/
-xset +fp /usr/share/fonts/artwiz-fonts/ 
+xset +fp /usr/share/fonts/local
 xset fp rehash
 
 # Background
-feh --bg-center /home/anthony/code/scripts/pixels-fit.png &
+xsetroot -solid grey31
 
 # dzen2
-$(sleep 2 ; sh /home/anthony/code/scripts/dzen_$(hostname).sh) &
+$(sleep 2 ; sh /home/aclark/code/scripts/dzen_$(hostname).sh) &
 
+# MPD
+mpd &
 
 #DWM
 while true; do

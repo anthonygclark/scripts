@@ -110,7 +110,7 @@ def mkdir(path, pname=""):
 		os.mkdir(dir_name)
 	except Exception as e:
 		print e
-		return none
+		sys.exit(1)
 	return dir_name
 
 

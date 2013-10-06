@@ -6,16 +6,18 @@
 # and assures I dont push backup/swap files and
 # only the files in the array below.
 
-REPO=~/code/dotfiles
+REPO=$HOME/code/dotfiles
 
 FILES=(
-"/home/anthony/.vimrc" 
-"/home/anthony/.vim"
-"/home/anthony/.Xdefaults"
-"/home/anthony/.bashrc"
-"/home/anthony/.gitconfig"
-"/home/anthony/.screenrc"
-"/home/anthony/.xinitrc"
+"$HOME/.vimrc" 
+"$HOME/.vim"
+"$HOME/.Xdefaults"
+"$HOME/.bashrc"
+"$HOME/.bash_profile"
+"$HOME/.gitconfig"
+"$HOME/.screenrc"
+"$HOME/.xinitrc"
+"$HOME/.pyrc"
 )
 
 for i in "${FILES[@]}" 
