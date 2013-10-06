@@ -2,6 +2,7 @@
 . $(dirname $(readlink -m $0))/dzen_common.sh
 
 IFACE=enp3s0
+X=1320
 
 while :; do
     cpu; echo -n "$SEP"
