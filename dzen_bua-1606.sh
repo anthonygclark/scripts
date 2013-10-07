@@ -34,8 +34,8 @@ while :; do
     echo -n "$(icon $MEM_ICON) $(mem_usage) $SEP"
     echo -n "$(icon $HDD_ICON) $(hdd_usage '/$') $SEP" 
 	echo -n "$(icon $VOLUME_ICON) $(volume) $SEP"
-    dbox; echo -n "$SEP"
-    net;  echo -n  "$SEP"
+    dbox; echo -n " $SEP"
+    net;  echo -n " $SEP"
     echo "$(clock) "
     sleep $REFRESH_RATE
 done | dzen2 -fg $FG_COLOR -bg $BG_COLOR -ta $TEXT_ALIGNMENT -w $WIDTH -h $HEIGHT -x $X -y $Y -fn $FONT -e ''
