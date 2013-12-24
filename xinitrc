@@ -15,12 +15,12 @@ xset fp rehash
 xsetroot -solid grey31
 
 # dzen2
-$(sleep 2 ; sh /home/aclark/code/scripts/dzen_$(hostname).sh) &
+$(sleep 2 ; bash $HOME/code/scripts/dzen_$(hostname).sh) &
 
 # MPD
-mpd &
+mpd && mpdscribble &
 
-#DWM
+# DWM
 while true; do
   dbus-launch --exit-with-session dwm >/dev/null 1>&1
 done

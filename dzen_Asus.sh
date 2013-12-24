@@ -1,8 +1,7 @@
 #!/bin/bash
 . $(dirname $(readlink -m $0))/dzen_common.sh
 
-IFACE=enp3s0
-X=1320 # Because my monitors are plugged in backwards...
+IFACE=enp2s0
 
 while :; do
     cpu; echo -n "$SEP"

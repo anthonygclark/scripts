@@ -38,18 +38,15 @@ WIDTH=600
 HEIGHT=13
 TEXT_ALIGNMENT="right"
 
-if [ "$MONITOR_ORIENTATION" = "vertical" ]; then
-    MTOK="-f2"
-else
-    MTOK="-f1"
-fi
+# Find the width of the attached monitors
+# and set X (x-offset) to the correct right corner-width
+X=0
+for i in $(xrandr | grep -P ' connected' | awk '{print $3}' | cut -d'x' -f1); do 
+    X=$(echo $X+$i | bc); 
+done
+X=$(echo $X-$WIDTH | bc)
 
-currentScreenWidth=$(xrandr | grep '*' | cut -d'x' $MTOK | head -1 | awk '{print $1}')
-if [ "$TEXT_ALIGNMENT" == "right" ] ; then
-    X=$(($currentScreenWidth-$WIDTH))
-else
-    X=1
-fi
+# Y offset
 Y=1
 
 BATTERY_CHARGING_ICON="${ICON_SRC}/ac_01.xbm"
@@ -216,7 +213,7 @@ cpu() {
 
 
 # -- DBOX {{{
-DB_CACHE="..."
+DB_CACHE="Connecting..."
 DB_COUNTER=0
 dbox()
 {
@@ -226,26 +223,8 @@ dbox()
         return
     fi
 
-    local res=$(dropbox status)
-    local ech=
-
-    if [[ $res =~ "Idle" ]]; then
-        ech="idle"
-    elif [[ $res =~ "Downloading" ]]; then
-        ech="downloading"
-    elif [[ $res =~ "Uploading" ]]; then
-        ech="uploading"
-    elif [[ $res =~ "isn't" ]]; then
-        ech="OFF"
-    elif [[ $res =~ "Index" ]]; then
-        ech="indexing"
-    elif [[ $res =~ "Connecting" ]]; then
-        ech="..."
-    else
-        ech="???"
-    fi
-
-    DB_CACHE=$ech
+    DB_CACHE="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
+    
     DB_COUNTER=0
     echo -n "$(icon $DBOX_ICON) $DB_CACHE"
 }
