@@ -124,7 +124,7 @@ battery() {
 wireless_quality() {
     quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
     if [ -z "$quality_bar" ] ; then
-        bar 100 $CRITICAL_PERCENTAGE
+        bar 100 $BAR_CRITICAL_COLOR
     else
         quality_bar=$(printf "%0.0f" $(echo "scale=10;($quality_bar/70)*100" | bc))
         if [ "$quality_bar" -le $CRITICAL_PERCENTAGE ] ; then
@@ -158,7 +158,16 @@ clock() {
 
 # -- Nvidia {{{
 nvidia() {
-    echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+    lsmod | grep nvidia &>/dev/null
+    [ "$?" == "1" ] && echo "GPU: OFF" && return
+    echo -n "GPU: "
+    # what we have to do for optimus 
+    which bumblebeed >/dev/null
+    if [ "$?" == "0" ] ; then
+        echo $(nvidia-settings -query GPUCoreTemp -c :8 | grep gpu | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+    else
+        echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+    fi
 }
 #}}}
 
