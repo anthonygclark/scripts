@@ -162,7 +162,7 @@ nvidia() {
     [ "$?" == "1" ] && echo "GPU: OFF" && return
     echo -n "GPU: "
     # what we have to do for optimus 
-    which bumblebeed >/dev/null
+    which bumblebeed &>/dev/null
     if [ "$?" == "0" ] ; then
         echo $(nvidia-settings -query GPUCoreTemp -c :8 | grep gpu | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
     else
