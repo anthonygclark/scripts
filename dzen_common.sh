@@ -70,48 +70,52 @@ TXB=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
 
 CLOCK_FORMAT="%I:%M"
 
-CRITICAL_PERCENTAGE=10
+CRITICAL_PERCENTAGE=20
 BAR_EXEC=gdbar # default on archlinux
 BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
-
+CRIT_BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 20 -sw 5 -nonl"
 
 
 # -- Helpers {{{
 icon() {
-	echo "^fg($ICON_COLOR)^i($1)^fg()"
+    echo "^fg($ICON_COLOR)^i($1)^fg()"
 }
 
 bar() {
-	echo "$1" | $BAR_EXEC $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
+    echo "$1" | $BAR_EXEC $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
+}
+
+crit_bar() {
+    echo $1 | $BAR_EXEC $CRIT_BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 #}}} 
 
 
 # -- Battery {{{
 battery_icon() {
-	if [ "$battery_status" == "Charging" ]; then
-		icon "$BATTERY_CHARGING_ICON"
-	elif [ "$battery_status" == "Discharging" ]; then
-		icon "$BATTERY_DISCHARGING_ICON"
-	else
-		icon "$BATTERY_MISSING_ICON"
-	fi
+    if [ "$battery_status" == "Charging" ]; then
+        icon "$BATTERY_CHARGING_ICON"
+    elif [ "$battery_status" == "Discharging" ]; then
+        icon "$BATTERY_DISCHARGING_ICON"
+    else
+        icon "$BATTERY_MISSING_ICON"
+    fi
 }
 
 battery_percentage() {
-	percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
-	if [ -z "$percentage" ]; then
-		echo "AC"
-	elif [ $percentage -le $CRITICAL_PERCENTAGE ] ; then
-	  bar "$percentage" $BAR_CRITICAL_COLOR
-  else
-		bar "$percentage" $BAR_FG_COLOR
-	fi
+    percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
+    if [ -z "$percentage" ]; then
+        echo "AC"
+    elif [ $percentage -le $CRITICAL_PERCENTAGE ] ; then
+        crit_bar "$percentage" $BAR_CRITICAL_COLOR
+    else
+        bar "$percentage" $BAR_FG_COLOR
+    fi
 }
 
 battery() {
-	battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
-	echo $(battery_icon) $(battery_percentage)
+    battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
+    echo $(battery_icon) $(battery_percentage)
 }
 # }}}
 
@@ -120,11 +124,11 @@ battery() {
 wireless_quality() {
     quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
     if [ -z "$quality_bar" ] ; then
-        bar 100 $BAR_OFF_COLOR
+        bar 100 $CRITICAL_PERCENTAGE
     else
         quality_bar=$(printf "%0.0f" $(echo "scale=10;($quality_bar/70)*100" | bc))
         if [ "$quality_bar" -le $CRITICAL_PERCENTAGE ] ; then
-            bar $quality_bar $BAR_CRITICAL_COLOR
+            crit_bar $quality_bar $BAR_CRITICAL_COLOR
         else
             bar $quality_bar $BAR_FG_COLOR
         fi
@@ -135,19 +139,19 @@ wireless_quality() {
 
 # -- Volume  {{{
 volume() {
-	volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
-	if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
-		echo -n "$(bar $volume $BAR_OFF_COLOR)"
-	else
-    echo -n "$(bar $volume $BAR_FG_COLOR)"
-	fi
+    volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
+    if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
+        echo -n "$(bar $volume $BAR_OFF_COLOR)"
+    else
+        echo -n "$(bar $volume $BAR_FG_COLOR)"
+    fi
 }
 # }}}
 
 
 # -- Clock {{{
 clock() {
-	echo "^fg($WHITE)$(date +$CLOCK_FORMAT)^fg()"
+    echo "^fg($WHITE)$(date +$CLOCK_FORMAT)^fg()"
 }
 #}}}
 
@@ -161,27 +165,27 @@ nvidia() {
 
 # -- Hard disks {{{
 hdd_usage() {
-  echo $(df | grep "$1" | awk '{print $5}')
+    echo $(df | grep "$1" | awk '{print $5}')
 }
 # }}}
 
 
 # -- Memory {{{ 
 mem_usage() {
-  printf %0.0f%% $(free -t | grep "buffers/cache" | awk '{print ($3*100)/($4)}')
+    printf %0.0f%% $(free -t | grep "buffers/cache" | awk '{print ($3*100)/($4)}')
 }
 #}}}
 
 
 # -- Network {{{ 
 net() {
-  RXBN=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
-  TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
-  local NEW_RX=$(echo "($RXBN - $RXB) / 1024 / $REFRESH_RATE" | bc)
-  local NEW_TX=$(echo "($TXBN - $TXB) / 1024 / $REFRESH_RATE" | bc)
-  echo -n "$(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
-  RXB=$(($RXBN))
-  TXB=$(($TXBN))
+    RXBN=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
+    TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
+    local NEW_RX=$(echo "($RXBN - $RXB) / 1024 / $REFRESH_RATE" | bc)
+    local NEW_TX=$(echo "($TXBN - $TXB) / 1024 / $REFRESH_RATE" | bc)
+    echo -n "$(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
+    RXB=$(($RXBN))
+    TXB=$(($TXBN))
 }
 # }}}
 
@@ -193,7 +197,7 @@ cpu() {
     local CPU=(`cat /proc/stat | grep '^cpu '`)
     unset CPU[0]
     local IDLE=${CPU[4]}
-    
+
     # Calculate the total CPU time.
     local TOTAL=0
     for VALUE in "${CPU[@]}"; do
@@ -209,7 +213,7 @@ cpu() {
     PREV_TOTAL=$(($TOTAL))
     PREV_IDLE=$(($IDLE))
 }
- #}}}
+#}}}
 
 
 # -- DBOX {{{
@@ -224,7 +228,7 @@ dbox()
     fi
 
     DB_CACHE="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
-    
+
     DB_COUNTER=0
     echo -n "$(icon $DBOX_ICON) $DB_CACHE"
 }
