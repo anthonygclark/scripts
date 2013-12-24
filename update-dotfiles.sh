@@ -5,8 +5,9 @@
 # copies all of my dotfiles to my dotfiles repo
 # and assures I dont push backup/swap files and
 # only the files in the array below.
+shopt -s extglob
 
-REPO=$HOME/code/dotfiles
+REPO="$HOME/code/dotfiles"
 
 FILES=(
 "$HOME/.vimrc" 
@@ -18,14 +19,22 @@ FILES=(
 "$HOME/.screenrc"
 "$HOME/.xinitrc"
 "$HOME/.pyrc"
+"$HOME/.weechat"
 )
 
+echo "[+] Copying"
 for i in "${FILES[@]}" 
 do
-  cp -r "$i" "$REPO"
+  cp -r "$i" "$REPO" || exit 1
 done
-  
-rm -f $REPO/.vim/swap/*.swp 
-rm -f $REPO/.vim/swap/*.swo
-rm -f $REPO/.vim/backup/*~  
-rm -f $REPO/.vim/backup/.*~ 
+ 
+echo "[+] Sanitizing"
+sed -ni '/\[server_default\]/,$!p' $REPO/.weechat/irc.conf
+rm -f $REPO/.weechat/weechat.log
+rm -rf $REPO/.weechat/logs
+
+cd $REPO
+echo "[+] Cleaning"
+git clean -fdx &>/dev/null 
+
+echo "[+] Done"
