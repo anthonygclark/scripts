@@ -41,10 +41,10 @@ TEXT_ALIGNMENT="right"
 # Find the width of the attached monitors
 # and set X (x-offset) to the correct right corner-width
 X=0
-for i in $(xrandr | grep -P ' connected' | awk '{print $3}' | cut -d'x' -f1); do 
-    X=$(echo $X+$i | bc); 
+for i in $(xrandr | sed -n -r '/ connected/ { s/.* ([0-9]+x[0-9]+).*/\1/;p }' | cut -d'x' -f1); do
+    X=$(bc <<< $X+$i); 
 done
-X=$(echo $X-$WIDTH | bc)
+X=$(bc <<< $X-$WIDTH)
 
 # Y offset
 Y=1
@@ -126,7 +126,7 @@ wireless_quality() {
     if [ -z "$quality_bar" ] ; then
         bar 100 $BAR_CRITICAL_COLOR
     else
-        quality_bar=$(printf "%0.0f" $(echo "scale=10;($quality_bar/70)*100" | bc))
+        quality_bar=$(printf "%0.0f" $(bc <<< "scale=10;($quality_bar/70)*100"))
         if [ "$quality_bar" -le $CRITICAL_PERCENTAGE ] ; then
             crit_bar $quality_bar $BAR_CRITICAL_COLOR
         else
@@ -151,7 +151,7 @@ volume() {
 
 # -- Clock {{{
 clock() {
-    echo "^fg($WHITE)$(date +$CLOCK_FORMAT)^fg()"
+    echo "^fg($WHITE)$(date +"$CLOCK_FORMAT")^fg()"
 }
 #}}}
 
@@ -162,8 +162,7 @@ nvidia() {
     [ "$?" == "1" ] && echo "GPU: OFF" && return
     echo -n "GPU: "
     # what we have to do for optimus 
-    which bumblebeed &>/dev/null
-    if [ "$?" == "0" ] ; then
+    if which bumblebeed &>/dev/null; then
         echo $(nvidia-settings -query GPUCoreTemp -c :8 | grep gpu | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
     else
         echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
@@ -190,8 +189,8 @@ mem_usage() {
 net() {
     RXBN=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
     TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
-    local NEW_RX=$(echo "($RXBN - $RXB) / 1024 / $REFRESH_RATE" | bc)
-    local NEW_TX=$(echo "($TXBN - $TXB) / 1024 / $REFRESH_RATE" | bc)
+    local NEW_RX=$(bc <<< "($RXBN - $RXB) / 1024 / $REFRESH_RATE")
+    local NEW_TX=$(bc <<< "($TXBN - $TXB) / 1024 / $REFRESH_RATE")
     echo -n "$(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
     RXB=$(($RXBN))
     TXB=$(($TXBN))
@@ -242,8 +241,6 @@ dbox()
     echo -n "$(icon $DBOX_ICON) $DB_CACHE"
 }
 # }}}
-
-
 
 
 # vim: foldmethod=marker : 
