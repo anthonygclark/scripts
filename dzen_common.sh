@@ -2,11 +2,10 @@
 # their scope cannot be called in a subshell. ie - 
 # you cannot do `echo myf` if myf modifies vars outside
 # itself.
-
 REFRESH_RATE=2
 
 # -- Locations
-ICON_SRC="/home/anthony/code/icons"
+ICON_SRC="$HOME/.icons/dzen"
 
 # -- Colors
 BLACK="#393939"
