@@ -41,8 +41,13 @@ TEXT_ALIGNMENT="right"
 # Find the width of the attached monitors
 # and set X (x-offset) to the correct right corner-width
 X=0
+<<<<<<< HEAD
 for i in $(xrandr | sed -n -r '/ connected/ { s/.* ([0-9]+x[0-9]+).*/\1/;p }' | cut -d'x' -f1); do
     X=$(bc <<< $X+$i); 
+=======
+for i in $(xrandr | grep -P ' connected [[:digit:]]' | awk '{print $3}' | cut -d'x' -f1); do 
+    X=$(echo $X+$i | bc); 
+>>>>>>> fix-dzen-bua
 done
 
 X=$(bc <<< $X-$WIDTH)

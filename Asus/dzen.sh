@@ -4,32 +4,13 @@
 IFACE=enp2s0
 CLOCK_FORMAT="%I:%M %A %D"
 
-
-
-
-
 MUSIC_ICON="${ICON_SRC}/note.xbm"
 PLAY_ICON="${ICON_SRC}/play.xbm"
 NEXT_ICON="${ICON_SRC}/next.xbm"
 PREV_ICON="${ICON_SRC}/prev.xbm"
 
-
-WIDTH=670
-HEIGHT=13
-TEXT_ALIGNMENT="right"
-
-# Find the width of the attached monitors
-# and set X (x-offset) to the correct right corner-width
-X=0
-for i in $(xrandr | sed -n -r '/ connected/ { s/.* ([0-9]+x[0-9]+).*/\1/;p }' | cut -d'x' -f1); do
-    X=$(bc <<< $X+$i); 
-done
-X=$(bc <<< $X-$WIDTH)
-
-# Y offset
-Y=1
-
-
+WIDTH=680
+X=$(bc <<< 1280-$WIDTH)
 
 function mpd()
 {
@@ -50,7 +31,7 @@ while :; do
     echo -n "$(mpd) $SEP"
     echo "$(clock) "
 	sleep $REFRESH_RATE
-done | dzen2 -fg $FG_COLOR -bg $BG_COLOR -ta $TEXT_ALIGNMENT -w $WIDTH -h $HEIGHT -x $X -y $Y -fn $FONT -e ''
+done | dzen2 -fg $FG_COLOR -bg $BG_COLOR -ta $TEXT_ALIGNMENT -w $WIDTH -h $HEIGHT -xs 1 -x $X -y $Y -fn $FONT -e ''
 
 
 # vim: foldmethod=marker : 

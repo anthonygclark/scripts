@@ -1,11 +1,5 @@
-#!/usr/bin/env python2 
-import sys
-import datetime
-import subprocess
-import string
-import random
-import os
-import shutil
+#!/usr/bin/env python2
+import sys, datetime, subprocess, string, random, os, shutil
 
 # Anthony Clark
 # Simple paste service.
@@ -15,8 +9,8 @@ import shutil
 #
 
 ############## 
-PASTE_DIR = "%s/web/paste" %s (os.getenv('HOME'))
-SERVER	  = "http://localhost/paste"
+PASTE_DIR = "/home/anthony/web/paste"
+SERVER	  = "http://aclarkdev.dyndns.org/paste"
 BOOTSTRAP_LOCATION = "../../static/bootstrap.min.css"
 ##############
 

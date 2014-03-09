@@ -10,6 +10,10 @@
 #
 
 CHROOT_PATH=/home/aclark/.chroots/debian
+if [[ ! -e $CHROOT_PATH ]]; then
+    echo "'$CHROOT_PATH' doesnt exist! Exiting."
+    exit 1
+fi
 
 if (( UID !=0 )) ; then
     echo "Must be root."

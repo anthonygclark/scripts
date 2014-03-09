@@ -4,6 +4,8 @@
     exit 1
 }
 
+sudo -v || exit 1
+
 [ "$1" != "up" ] && [ "$1" != "down" ] && [ "$1" != "max" ] && exit 1
 
 TOTAL=$(cat /sys/class/backlight/intel_backlight/max_brightness)
@@ -16,17 +18,17 @@ ROUNDED_TOTAL=$(bc <<< $STEP*$AMT_STEPS)
 
 # normalize, set to middle
 [ $(bc <<< "$CURR%$STEP") -ne 0 ] && {
-    echo $(bc <<< "$STEP*($AMT_STEPS/2)") > /sys/class/backlight/intel_backlight/brightness
+    echo $(bc <<< "$STEP*($AMT_STEPS/2)") | sudo tee /sys/class/backlight/intel_backlight/brightness
 }
 
 if [ "$1" = "up" ] ; then
     [ "$CURR" -lt "$ROUNDED_TOTAL" ] && {
-        echo $(bc <<< "$CURR+$STEP") > /sys/class/backlight/intel_backlight/brightness
-    }
+    echo $(bc <<< "$CURR+$STEP") | sudo tee /sys/class/backlight/intel_backlight/brightness
+}
 elif [ "$1" = "down" ] ; then
     [ "$CURR" -gt "$STEP" ] && {
-        echo $(bc <<< "$CURR-$STEP") > /sys/class/backlight/intel_backlight/brightness
-    }
+    echo $(bc <<< "$CURR-$STEP") | sudo tee /sys/class/backlight/intel_backlight/brightness
+}
 elif [ "$1" = "max" ] ; then
-    echo $TOTAL > /sys/class/backlight/intel_backlight/brightness
+    echo $TOTAL | sudo tee /sys/class/backlight/intel_backlight/brightness
 fi

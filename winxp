@@ -1,4 +1,0 @@
-#!/bin/bash
-# Shortcut, was tired of always
-# typing this in.
-vboxmanage startvm "Windows XP"
