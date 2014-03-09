@@ -1,5 +1,5 @@
 #!/bin/bash
-. $(dirname $(readlink -m $0))/dzen_common.sh
+. $(dirname $(readlink -m $0))/../dzen_common.sh
 
 IFACE=enp2s0
 CLOCK_FORMAT="%I:%M %A %D"
@@ -14,7 +14,7 @@ X=$(bc <<< 1280-$WIDTH)
 
 function mpd()
 {
-    echo -n "^ca(1, /home/anthony/code/scripts/music.sh)$(icon $MUSIC_ICON)^ca()"   
+    echo -n "^ca(1, $HOME/code/scripts/now-playing)$(icon $MUSIC_ICON)^ca()"   
     echo -n "^ca(1, mpc prev >/dev/null)  $(icon $PREV_ICON)^ca()"
     echo -n "^ca(1, mpc toggle >/dev/null)  $(icon $PLAY_ICON)^ca()"
     echo -n "^ca(1, mpc next >/dev/null)  $(icon $NEXT_ICON)^ca()"

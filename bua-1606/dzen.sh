@@ -1,5 +1,5 @@
 #!/bin/bash
-. $(dirname $(readlink -f $0))/dzen_common.sh
+. $(dirname $(readlink -f $0))/../dzen_common.sh
 
 # redefining icons
 BATTERY_CHARGING_ICON="AC"
