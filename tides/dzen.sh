@@ -1,6 +1,5 @@
-
 #!/bin/bash
-. $(dirname $(readlink -m $0))/dzen_common.sh
+. $(dirname $(readlink -m $0))/../dzen_common.sh
 
 IFACE=wlan0
 
