@@ -29,12 +29,13 @@ do
     cp -r "$i" "$REPO" || exit 1
 done
  
+cd $REPO
+
 echo "[+] Sanitizing Weechat"
-sed -i 's/\.password = ".*"//g' .weechat/irc.conf
+sed -i 's/\.password = ".*"/\.password/g' .weechat/irc.conf
 rm -f $REPO/.weechat/weechat.log
 rm -rf $REPO/.weechat/logs
 
-cd $REPO
 echo "[+] Cleaning"
 git clean -fdx &>/dev/null 
 
