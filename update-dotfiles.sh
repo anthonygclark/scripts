@@ -20,16 +20,17 @@ FILES=(
 "$HOME/.xinitrc"
 "$HOME/.pyrc"
 "$HOME/.weechat"
+"$HOME/.config/dunst/dunstrc"
 )
 
 echo "[+] Copying"
 for i in "${FILES[@]}" 
 do
-  cp -r "$i" "$REPO" || exit 1
+    cp -r "$i" "$REPO" || exit 1
 done
  
-echo "[+] Sanitizing"
-sed -ni '/\[server_default\]/,$!p' $REPO/.weechat/irc.conf
+echo "[+] Sanitizing Weechat"
+sed -i 's/\.password = ".*"//g' .weechat/irc.conf
 rm -f $REPO/.weechat/weechat.log
 rm -rf $REPO/.weechat/logs
 
