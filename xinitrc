@@ -12,7 +12,7 @@ xset fp rehash
 xsetroot -solid grey31
 
 # dzen2
-DZEN="$HOME/code/scripts($hostname)/dzen.sh"
+DZEN="$HOME/code/scripts/$(hostname)/dzen.sh"
 if which $DZEN &>/dev/null; then
     $(sleep 2 ; bash $DZEN) &
 fi
