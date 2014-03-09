@@ -1,0 +1,2 @@
+#!/bin/bash
+notify-send -u normal "$(ncmpcpp --now-playing "%a\n%b\n%t")"

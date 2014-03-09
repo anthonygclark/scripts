@@ -28,6 +28,7 @@ icon() {
 	echo "^fg($ICON_COLOR)$1^fg()"
 }
 
+REFRESH_RATE=4
 while :; do
 	echo -n "$(battery) $SEP"
     cpu; echo -n "$SEP"
