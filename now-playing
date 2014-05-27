@@ -1,2 +1,7 @@
 #!/bin/bash
-notify-send -u normal "$(ncmpcpp --now-playing "%a\n%b\n%t")"
+STR=$(ncmpcpp --now-playing "%a - %b : %t")
+if [[ -z $STR ]] ; then
+    STR=$(ncmpcpp --now-playing)
+fi
+
+notify-send -u normal "$STR"

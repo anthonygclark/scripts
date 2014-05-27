@@ -165,7 +165,8 @@ nvidia() {
     if which bumblebeed &>/dev/null; then
         echo $(nvidia-settings -query GPUCoreTemp -c :8 | grep gpu | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
     else
-        echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+        echo $(nvidia-settings -q gpucoretemp -t)
+        #echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
     fi
 }
 #}}}
