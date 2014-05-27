@@ -1,0 +1,51 @@
+#!/bin/bash
+export logFile=${logFile:-/dev/null}
+
+_FAIL="[-]"
+_SUCCESS="[+]"
+_NOTE="[*]"
+ 
+function _progress()
+{
+    local PID=$1
+    local msg="$2"
+    local delay=0.25
+    local str=("/" "-" "\\" "|")
+    local index=0
+ 
+    while kill -0 $PID &>/dev/null; do
+        echo -ne "\r[${str[$index]}] "$msg"  "
+        sleep $delay
+        index=$(bc <<< "(($index+1) % ${#str[@]})")
+    done
+}
+ 
+ 
+function _task()
+{
+    eval "$1" &> "$logFile" &
+    local pid=$!
+ 
+    if [ -t 1 ]; then
+        _progress $pid "$2"
+    else
+        echo -en "\r[...] "$2""
+        wait $pid
+    fi
+ 
+    wait $pid
+ 
+    local ret=$?
+    if ! (( $ret )); then
+        echo -en "\r$_SUCCESS "$2"  \n"
+    else 
+        echo -en "\r$_FAIL "$2"  \n" 
+    fi
+ 
+    return $ret
+}
+ 
+
+[[ $# -lt 2 ]] && exit 1
+
+_task "$@"

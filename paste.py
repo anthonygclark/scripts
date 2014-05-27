@@ -15,7 +15,7 @@ import shutil
 #
 
 ############## 
-PASTE_DIR = "%s/web/paste" %s (os.getenv('HOME'))
+PASTE_DIR = "%s/web/paste" % (os.getenv('HOME'))
 SERVER	  = "http://localhost/paste"
 BOOTSTRAP_LOCATION = "../../static/bootstrap.min.css"
 ##############

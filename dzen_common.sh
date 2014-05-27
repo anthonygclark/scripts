@@ -33,20 +33,15 @@ SEPERATOR_COLOR=$MED_GRAY
 FONT="-*-cure-medium-r-*-*-12-*-*-*-*-*-*-*"
 SEP="^fg($SEPERATOR_COLOR)| ^fg()"
 
-WIDTH=600
+WIDTH=700
 HEIGHT=13
 TEXT_ALIGNMENT="right"
 
 # Find the width of the attached monitors
 # and set X (x-offset) to the correct right corner-width
-X=0
-for i in $(xrandr | sed -n -r '/ connected/ { s/.* ([0-9]+x[0-9]+).*/\1/;p }' | cut -d'x' -f1); do
-    X=$(bc <<< $X+$i); 
-done
-
+__arr=($(xdpyinfo | grep dimensions))
+X=$(cut -dx -f1 <<< ${__arr[1]})
 X=$(bc <<< $X-$WIDTH)
-
-# Y offset
 Y=1
 
 BATTERY_CHARGING_ICON="${ICON_SRC}/ac_01.xbm"
@@ -103,7 +98,7 @@ battery_icon() {
 }
 
 battery_percentage() {
-    percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
+    local percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
     if [ -z "$percentage" ]; then
         echo "AC"
     elif [ $percentage -le $CRITICAL_PERCENTAGE ] ; then
@@ -114,7 +109,7 @@ battery_percentage() {
 }
 
 battery() {
-    battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
+    local battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
     echo $(battery_icon) $(battery_percentage)
 }
 # }}}
@@ -122,7 +117,7 @@ battery() {
 
 # -- Wireless {{{
 wireless_quality() {
-    quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
+    local quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
     if [ -z "$quality_bar" ] ; then
         bar 100 $BAR_CRITICAL_COLOR
     else
@@ -139,7 +134,7 @@ wireless_quality() {
 
 # -- Volume  {{{
 volume() {
-    volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
+    local volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
     if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
         echo -n "$(bar $volume $BAR_OFF_COLOR)"
     else
@@ -234,10 +229,9 @@ dbox()
         DB_COUNTER=$((DB_COUNTER+1))
         return
     fi
-
-    DB_CACHE="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
-
+    
     DB_COUNTER=0
+    DB_CACHE="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
     echo -n "$(icon $DBOX_ICON) $DB_CACHE"
 }
 # }}}

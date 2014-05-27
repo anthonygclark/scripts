@@ -2,7 +2,7 @@
 
 # Fix QT Apps
 export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+#/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Fonts
 xset +fp /usr/share/fonts/local
