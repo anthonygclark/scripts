@@ -14,7 +14,7 @@ X=$(bc <<< 1280-$WIDTH)
 
 function mpd()
 {
-    echo -n "^ca(1, $HOME/code/scripts/now-playing)$(icon $MUSIC_ICON)^ca()"   
+    echo -n "^ca(1, urxvt -e sh -c ncmpcpp)$(icon $MUSIC_ICON)^ca()"   
     echo -n "^ca(1, mpc prev >/dev/null)  $(icon $PREV_ICON)^ca()"
     echo -n "^ca(1, mpc toggle >/dev/null)  $(icon $PLAY_ICON)^ca()"
     echo -n "^ca(1, mpc next >/dev/null)  $(icon $NEXT_ICON)^ca()"

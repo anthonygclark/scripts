@@ -25,7 +25,11 @@ fi
 # Fix Java Swing
 wmname LG3D
 
+# Xresources
+[[ -f ~/.Xresources ]] && xrdb -merge ~/.Xresources
+
 # DWM
 while true; do
   dbus-launch --exit-with-session dwm >/dev/null 1>&1
 done
+
