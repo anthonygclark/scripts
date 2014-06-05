@@ -6,6 +6,7 @@
 # and assures I dont push backup/swap files and
 # only the files in the array below.
 shopt -s extglob
+source task_source
 
 REPO="$HOME/code/dotfiles"
 
@@ -24,20 +25,64 @@ FILES=(
 "$HOME/.config/dunst/dunstrc"
 )
 
-echo "[+] Copying"
-for i in "${FILES[@]}" 
-do
-    cp -r "$i" "$REPO" || exit 1
-done
- 
+function _copy()
+{
+    local base
+    local dest
+    cd $REPO
+    
+    for i in "${FILES[@]}"; do
+        base=$(dirname $i)
+        base=${base#$HOME}
+        
+        # we have a subdirectory
+        if [[ ! -e $base ]]; then
+            dest="${REPO}/${base#/}"
+            mkdir -p  ${dest}
+        else
+            dest="${REPO}"
+        fi
+        
+        cp -r "$i" "${dest}"
+    done
+}
+
+
+function _weechat()
+{
+    sed -i 's/\.password = ".*"/\.password/g' .weechat/irc.conf
+    rm -f ${REPO}/.weechat/weechat.log
+    rm -rf ${REPO}/.weechat/logs
+}
+
+function _vim()
+{
+    rm -rf ${REPO}/.vim/bundle/*
+}
+
+function _clean()
+{
+    git clean -fdx &>/dev/null; true
+}
+
 cd $REPO
 
-echo "[+] Sanitizing Weechat"
-sed -i 's/\.password = ".*"/\.password/g' .weechat/irc.conf
-rm -f $REPO/.weechat/weechat.log
-rm -rf $REPO/.weechat/logs
+export logFile=$(mktemp)
 
-echo "[+] Cleaning"
-git clean -fdx &>/dev/null 
+_task "_copy"    "Copying Dotfiles"
+_task "_weechat" "Sanitizing Weechat"
+_task "_vim"     "Cleaning vundle"
+
+if [[ $1 != "-k" ]]; then
+    _task "_clean"   "Cleaning git"
+fi
 
 echo "[+] Done"
+
+if [[ $(wc -c < ${logFile}) != 0 ]]; then
+    echo
+    echo "Log------"
+    cat ${logFile}
+fi
+
+rm ${logFile}

@@ -71,7 +71,7 @@ BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
 CRIT_BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 20 -sw 5 -nonl"
 
 
-# -- Helpers {{{
+# -- Helpers {{{ 
 icon() {
     echo "^fg($ICON_COLOR)^i($1)^fg()"
 }
@@ -221,19 +221,38 @@ cpu() {
 
 
 # -- DBOX {{{
-DB_CACHE="Connecting..."
+DB_COLOR=$YELLOW
+DB_CACHE="connecting..."
 DB_COUNTER=0
 dbox()
 {
     if [[ $DB_COUNTER -lt 5 ]]; then
-        echo -n "$(icon $DBOX_ICON) $DB_CACHE"
+        echo -n "$(ICON_COLOR=$DB_COLOR icon $DBOX_ICON) $DB_CACHE"
         DB_COUNTER=$((DB_COUNTER+1))
         return
     fi
     
     DB_COUNTER=0
-    DB_CACHE="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
-    echo -n "$(icon $DBOX_ICON) $DB_CACHE"
+
+    local _res="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
+    local _lres=${_res,,}
+    DB_CACHE=${_lres}
+
+    if [[ $_lres =~ "isn't" ]]; then
+        DB_COLOR=$RED
+    elif [[ $_lres =~ "up to date" ]]; then
+        DB_COLOR=$GREEN
+    elif [[ $_lres =~ "download" ]]; then
+        DB_COLOR=$YELLOW
+    elif [[ $_lres =~ "remaining" ]]; then
+        DB_COLOR=$YELLOW
+    elif [[ $_lres =~ "connecting" ]]; then
+        DB_COLOR=$YELLOW
+    else
+        DB_COLOR=$ICON_COLOR
+    fi
+
+    echo -n "$(ICON_COLOR=$DB_COLOR icon $DBOX_ICON) $DB_CACHE"
 }
 # }}}
 
