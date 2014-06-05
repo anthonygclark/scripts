@@ -58,6 +58,8 @@ function _weechat()
 function _vim()
 {
     rm -rf ${REPO}/.vim/bundle/*
+    git submodule init
+    git submodule update
 }
 
 function _clean()
