@@ -1,0 +1,9 @@
+#!/bin/bash
+# Update all mirrors
+
+ls -t | grep -v -E '(git-shell|backups)' | while read i; do
+    [[ -f "$i/_mirror" ]] && {
+        echo "Updating: $i" | tee -a /tmp/git-update.log
+        git-shell-commands/update "$i" | tee -a /tmp/git-update.log
+    }
+done
