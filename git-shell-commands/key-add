@@ -5,16 +5,14 @@ keyfile=$(mktemp)
 echo "$key" > $keyfile
 
 # Generate a fingerprint
-fingerprint=`ssh-keygen -lf $keyfile` 
-[ "$?" != "0" ] && {
+ssh-keygen -lf $keyfile || {
     echo "Error: Not a Keyfile"
     rm $keyfile
     exit 1
 }
 
-cat $keyfile >> $HOME/.ssh/authorized_keys
+cat "$keyfile" >> "$HOME"/.ssh/authorized_keys
 rm $keyfile
 
-# Display the fingerprint for reference
 echo "Success! Added a key with the following fingerprint:"
 echo $fingerprint

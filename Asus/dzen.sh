@@ -1,5 +1,5 @@
 #!/bin/bash
-. $(dirname $(readlink -m $0))/../dzen_common.sh
+source $(dirname $(readlink -m $0))/../dzen_common.sh
 
 IFACE=enp2s0
 CLOCK_FORMAT="%I:%M %A %D"
@@ -21,15 +21,15 @@ function mpd()
 }
 
 while :; do
-    cpu; echo -n "$SEP"
-	echo -n "$(icon $MEM_ICON) $(mem_usage) $SEP"
-    echo -n "$(icon $HDD_ICON) $(hdd_usage home) $SEP" 
-	echo -n "$(icon $VOLUME_ICON) $(volume) $SEP"
-    echo -n "$(icon $GPU_ICON) $(nvidia) $SEP"
-    dbox; echo -n " $SEP"
-    net;  echo -n " $SEP"
-    echo -n "$(mpd) $SEP"
-    echo "$(clock) "
+    cpu      ; print_seperator ;
+    mem      ; print_seperator ;
+    hdd '/$' ; print_seperator ;
+    volume   ; print_seperator ;
+	nvidia   ; print_seperator ;
+    dbox     ; print_seperator ;
+    net      ; print_seperator ;
+    mpd      ; print_seperator ;
+    clock    ;
 	sleep $REFRESH_RATE
 done | dzen2 -fg $FG_COLOR -bg $BG_COLOR -ta $TEXT_ALIGNMENT -w $WIDTH -h $HEIGHT -xs 1 -x $X -y $Y -fn $FONT -e ''
 

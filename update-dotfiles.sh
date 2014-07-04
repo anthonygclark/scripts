@@ -8,6 +8,7 @@
 shopt -s extglob
 source task_source
 
+export logFile=$(mktemp)
 REPO="$HOME/code/dotfiles"
 
 FILES=(
@@ -53,30 +54,31 @@ function _weechat()
     sed -i 's/\.password = ".*"/\.password/g' .weechat/irc.conf
     rm -f ${REPO}/.weechat/weechat.log
     rm -rf ${REPO}/.weechat/logs
-}
+    rm -f ${REPO}/.weechat/script/*.gz
+} >>$logFile
 
 function _vim()
 {
     rm -rf ${REPO}/.vim/bundle/*
     git submodule init
     git submodule update
-}
+    true
+} >>$logFile
 
 function _clean()
 {
     git clean -fdx &>/dev/null; true
-}
+} >>$logFile
 
 cd $REPO
 
-export logFile=$(mktemp)
 
-_task "_copy"    "Copying Dotfiles"
-_task "_weechat" "Sanitizing Weechat"
-_task "_vim"     "Cleaning vundle"
+_copy    & waitProgress "Copying Dotfiles"
+_weechat & waitProgress "Sanitizing Weechat"
+_vim     & waitProgress "Cleaning vundle"
 
 if [[ $1 != "-k" ]]; then
-    _task "_clean"   "Cleaning git"
+    _clean & waitProgress "Cleaning git"
 fi
 
 echo "[+] Done"

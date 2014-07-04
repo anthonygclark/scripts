@@ -1,43 +1,25 @@
 #!/bin/bash
 # Removes Repo
-
-error(){
-    echo "$1"
-    exit 1
-}
-
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
-    echo "Usage: $(basename $0) <dir name>"
+    echo "Usage: $(basename $0) <repo>"
     exit 1
 }
 
-echo -ne "Delete '"$1"' [y/n]?: "
-read ans
+[[ ! -d $1 ]] && {
+    echo "Repo '$1' does not exist."
+    exit 1
+}
 
+echo -ne "Delete '$1' [y/n]?: "
+read ans
 
 # Attempts to prevent going outside pwd
 case "$ans" in
-    Yes|yes|YES|y)
-        ls -A | grep "$1" > /dev/null
-        [ "$?" != "0" ] && error "Dir '$1' does not exist."
-        [ ! -d "$1" ] && error "'$1' is not a directory"
-
-        # only ask for backup if they want to remove 
-        # repo
-        echo -ne "Backup '"$1"' [y/n]?: "
-        read bkans
-        case "$bkans" in
-            Yes|yes|YES|y)
-                $HOME/git-shell-commands/tar "$1" || {
-                        error "Backup error."
-                        exit 1
-                    }
-                ;;
-            *)
-                echo "Backup aborted."
-                ;;
-        esac
-
+    Yes|yes|y)
+        "$HOME"/git-shell-commands/tar "$1" || {
+            echo "Backup error."
+            exit 1
+        }
 
         rm -rf "$1" || error "Remove error."
         echo "Remove succeeded."

@@ -2,7 +2,7 @@
 # their scope cannot be called in a subshell. ie - 
 # you cannot do `echo myf` if myf modifies vars outside
 # itself.
-REFRESH_RATE=2
+REFRESH_RATE=4
 
 # -- Locations
 ICON_SRC="$HOME/.icons/dzen"
@@ -67,122 +67,137 @@ CLOCK_FORMAT="%I:%M"
 
 CRITICAL_PERCENTAGE=20
 BAR_EXEC=gdbar # default on archlinux
+WIFI_BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 71 -sw 1 -nonl"
 BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
 CRIT_BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 20 -sw 5 -nonl"
 
 
 # -- Helpers {{{ 
-icon() {
+function print_seperator()
+{
+    echo -n " $SEP"
+}
+
+function icon()
+{
     echo "^fg($ICON_COLOR)^i($1)^fg()"
 }
 
-bar() {
+function bar()
+{
     echo "$1" | $BAR_EXEC $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 
-crit_bar() {
+function crit_bar() 
+{
     echo $1 | $BAR_EXEC $CRIT_BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 #}}} 
 
 
-# -- Battery {{{
-battery_icon() {
-    if [ "$battery_status" == "Charging" ]; then
-        icon "$BATTERY_CHARGING_ICON"
-    elif [ "$battery_status" == "Discharging" ]; then
-        icon "$BATTERY_DISCHARGING_ICON"
-    else
-        icon "$BATTERY_MISSING_ICON"
-    fi
-}
+# -- Battery {{{ 
+function battery() 
+{
+    local ret=""
+    local acpi_=$(acpi -b)
+    local status_=$(cut -d ' ' -f 3 <<< $acpi_ | tr -d ',')
+    local percent_=$(cut -d ',' -f 2 <<< $acpi_ | tr -d '%')
 
-battery_percentage() {
-    local percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
-    if [ -z "$percentage" ]; then
-        echo "AC"
-    elif [ $percentage -le $CRITICAL_PERCENTAGE ] ; then
-        crit_bar "$percentage" $BAR_CRITICAL_COLOR
-    else
-        bar "$percentage" $BAR_FG_COLOR
-    fi
-}
+    case "$status_" in
+        "Charging")     ret="$(icon $BATTERY_CHARGING_ICON)"    ;;
+        "Discharging")  ret="$(icon $BATTERY_DISCHARGING_ICON)" ;;
+        *)              ret="$(icon $BATTERY_MISSING_ICON)"     ;; 
+    esac
 
-battery() {
-    local battery_status=$(acpi -b | cut -d ' ' -f 3 | tr -d ',')
-    echo $(battery_icon) $(battery_percentage)
+    if [[ -n $percent_ ]] ; then 
+        if (( percent_ <= $CRITICAL_PERCENTAGE )) ; then
+            ret="$ret $(crit_bar $percent_ $BAR_CRITICAL_COLOR)"
+        else
+            ret="$ret $(bar $percent_ $BAR_FG_COLOR)"
+        fi
+    fi
+
+    echo -n "$ret"
 }
 # }}}
 
 
 # -- Wireless {{{
-wireless_quality() {
-    local quality_bar=$(cat /proc/net/wireless | grep $IFACE | cut -d ' ' -f 6 | tr -d '.')
-    if [ -z "$quality_bar" ] ; then
-        bar 100 $BAR_CRITICAL_COLOR
-    else
-        quality_bar=$(printf "%0.0f" $(bc <<< "scale=10;($quality_bar/70)*100"))
-        if [ "$quality_bar" -le $CRITICAL_PERCENTAGE ] ; then
-            crit_bar $quality_bar $BAR_CRITICAL_COLOR
+function wireless() 
+{
+    local ret="$(icon $WIRELESS_ICON)"
+    
+    if grep $IFACE /proc/net/wireless &>/dev/null ; then
+        local quality_=$(grep $IFACE /proc/net/wireless | cut -d ' ' -f 5 | tr -d '.')
+        if (( $quality_ <= $CRITICAL_PERCENTAGE )); then
+            ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE crit_bar $quality_ $BAR_CRITICAL_COLOR)"
         else
-            bar $quality_bar $BAR_FG_COLOR
+            ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE bar $quality_ $BAR_FG_COLOR)"
         fi
+    else
+        ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE bar 100 $BAR_OFF_COLOR)"
     fi
+    
+    echo -n "$ret"
 }
 #}}}
 
 
 # -- Volume  {{{
-volume() {
-    local volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
-    if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
-        echo -n "$(bar $volume $BAR_OFF_COLOR)"
+function volume()
+{
+    local ret="$(icon $VOLUME_ICON)"
+    local volume_=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
+    if [[ -z $(amixer get Master | grep "\[on\]") ]]; then
+        echo -n "$ret $(bar $volume_ $BAR_OFF_COLOR)"
     else
-        echo -n "$(bar $volume $BAR_FG_COLOR)"
+        echo -n "$ret $(bar $volume_ $BAR_FG_COLOR)"
     fi
 }
 # }}}
 
 
 # -- Clock {{{
-clock() {
-    echo "^fg($WHITE)$(date +"$CLOCK_FORMAT")^fg()"
+function clock() 
+{
+    echo "^fg($WHITE)$(date +"$CLOCK_FORMAT")^fg() "
 }
 #}}}
 
 
 # -- Nvidia {{{
-nvidia() {
-    lsmod | grep nvidia &>/dev/null
-    [ "$?" == "1" ] && echo "GPU: OFF" && return
-    echo -n "GPU: "
-    # what we have to do for optimus 
-    if which bumblebeed &>/dev/null; then
-        echo $(nvidia-settings -query GPUCoreTemp -c :8 | grep gpu | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+function nvidia()
+{
+    local ret="$(icon $GPU_ICON) GPU:"
+    if grep "nvidia" <<< $(lsmod)  &>/dev/null; then 
+        ret="$ret $(nvidia-settings -q gpucoretemp -t)"
     else
-        echo $(nvidia-settings -q gpucoretemp -t)
-        #echo $(nvidia-settings -query GPUCoreTemp | perl -ne 'print $1 if /GPUCoreTemp.*?: (\d+)./;')
+        ret="$ret OFF"
     fi
+    echo -n "$ret"
 }
 #}}}
 
 
 # -- Hard disks {{{
-hdd_usage() {
-    echo $(df | grep "$1" | awk '{print $5}')
+function hdd()
+{
+    echo -n "$(icon $HDD_ICON) $(df | grep "$1" | awk '{print $5}')"
 }
 # }}}
 
 
 # -- Memory {{{ 
-mem_usage() {
-    printf %0.0f%% $(free -t | grep "buffers/cache" | awk '{print ($3*100)/($4)}')
+function mem() 
+{
+    printf "$(icon $MEM_ICON) %0.0f%%" $(free -t | grep "buffers/cache" | awk '{print ($3*100)/($4)}')
 }
 #}}}
 
 
 # -- Network {{{ 
-net() {
+function net()
+{
     RXBN=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
     TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
     local NEW_RX=$(bc <<< "($RXBN - $RXB) / 1024 / $REFRESH_RATE")
@@ -197,8 +212,9 @@ net() {
 # -- CPU {{{
 PREV_TOTAL=0
 PREV_IDLE=0
-cpu() {
-    local CPU=(`cat /proc/stat | grep '^cpu '`)
+function cpu()
+{
+    local CPU=($(cat /proc/stat | grep '^cpu '))
     unset CPU[0]
     local IDLE=${CPU[4]}
 
@@ -212,7 +228,7 @@ cpu() {
     let "DIFF_IDLE=$IDLE-$PREV_IDLE"
     let "DIFF_TOTAL=$TOTAL-$PREV_TOTAL"
     let "DIFF_USAGE=(1000*($DIFF_TOTAL-$DIFF_IDLE)/$DIFF_TOTAL+5)/10"
-    echo -n "$(icon $CPU_ICON) $DIFF_USAGE% "
+    echo -n "$(icon $CPU_ICON) $DIFF_USAGE%"
 
     PREV_TOTAL=$(($TOTAL))
     PREV_IDLE=$(($IDLE))
@@ -224,9 +240,10 @@ cpu() {
 DB_COLOR=$YELLOW
 DB_CACHE="connecting..."
 DB_COUNTER=0
-dbox()
+DB_INTERVAL=2 
+function dbox()
 {
-    if [[ $DB_COUNTER -lt 5 ]]; then
+    if [[ $DB_COUNTER -lt $DB_INTERVAL ]]; then
         echo -n "$(ICON_COLOR=$DB_COLOR icon $DBOX_ICON) $DB_CACHE"
         DB_COUNTER=$((DB_COUNTER+1))
         return
@@ -239,8 +256,10 @@ dbox()
     DB_CACHE=${_lres}
 
     if [[ $_lres =~ "isn't" ]]; then
+        DB_CACHE="off"
         DB_COLOR=$RED
     elif [[ $_lres =~ "up to date" ]]; then
+        DB_CACHE="on"
         DB_COLOR=$GREEN
     elif [[ $_lres =~ "download" ]]; then
         DB_COLOR=$YELLOW

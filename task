@@ -1,4 +1,29 @@
 #!/bin/bash
+logFile=$2
+
 source $(dirname $(readlink -m $0))/task_source
-[[ $# -lt 2 ]] && exit 1
-_task "$@"
+
+[[ $# -lt 2 ]] && {
+cat << EOF
+task - Run command(s) with output to file/stream with progress indicator
+Usage: task <commands string> [logfile]
+EOF
+exit 1
+}
+
+commands=$1
+
+function message()
+{
+    local s=${commands:0:25}
+    if (( ${#commands} >= 25 )); then
+        s="$s..."
+    fi
+    printf "%s" "$s"
+}
+
+if [[ "$commands" =~ "sudo" ]]; then
+    sudo -v || exit 1
+fi
+
+eval "$commands" &>>$logFile & waitProgress "$(message)" || echo "Command failed"

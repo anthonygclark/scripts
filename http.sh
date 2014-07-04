@@ -44,10 +44,8 @@ function Server()
 nc -h 2>&1 | grep "OpenBSD netcat"
 echo "Port $PORT"
 
-
 # 'chroot' into dir
 cd $(dirname $(readlink -m $1))
-
 
 while Server "$1" | nc -l -p $PORT | eval $(Request); do
     echo "## Sent $1 $(date)"

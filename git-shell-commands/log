@@ -1,10 +1,19 @@
 #!/bin/bash
 # Print Repo Log
 [ -z "$1" -o "$1" == ".." -o "$1" == "." ] && {
-    echo "Usage: $(basename $0) <dir name>"
+    echo "Usage: $(basename $0) <repo> <branch>"
     exit 1
 }
 
 cd "$1"
-git log --pretty='format:%Cgreen%cn %Cred%ai %Creset- %s'
+branch="$2"
+
+[[ -z $branch ]] && branch='master'
+
+! git branch | grep "$branch\$" &>/dev/null && {
+    echo "Branch '$branch' not found"
+    exit 1
+}
+
+git log "$branch" --pretty=format:'%Cgreen%h | %Cblue%an | %Creset- %s' -30 | column -t -s '|' 2>/dev/null
 exit 0

@@ -1,5 +1,9 @@
 #!/bin/bash
 # Lists Repos
-ls -t | grep -v -E '(git-shell|backups)' | while read i; do
-  echo "|-- $i"
-done
+which tree &>/dev/null                                          \
+    && tree -L 1 -I "git-shell*|backup*" --noreport -t | sed 1d \
+    || {
+        ls -t | grep -v -E '(git-shell|backups)' | while read i; do
+          echo "|-- $i"
+        done
+    }

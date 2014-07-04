@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# The Numix gtk3 theme is awesome, but I hate
+# orange. This makes it grey
+#
 
 function fail()
 {

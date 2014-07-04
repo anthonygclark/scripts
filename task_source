@@ -1,46 +1,41 @@
+# vim: set ft=sh
 export logFile=${logFile:-/dev/null}
 
-_FAIL="[-]"
-_SUCCESS="[+]"
-_NOTE="[*]"
- 
-function _progress()
+function waitProgress()
 {
-    local PID=$1
-    local msg="$2"
+    local pid=$!
+    local msg=$1
     local delay=0.25
     local str=("/" "-" "\\" "|")
     local index=0
- 
-    while kill -0 $PID &>/dev/null; do
-        echo -ne "\r[${str[$index]}] "$msg"  "
-        sleep $delay
-        index=$(bc <<< "(($index+1) % ${#str[@]})")
-    done
-}
- 
- 
-function _task()
-{
-    eval "$1" &>> "${logFile}" &
-    local pid=$!
- 
-    if [ -t 1 ]; then
-        _progress $pid "$2"
+    local _FAIL="[-]"
+    local _SUCCESS="[+]"
+    local _NOTE="[*]"
+    
+    [[ -z $msg ]] && { 
+        msg="Waiting..."
+    }
+
+    if [[ -t 1 ]]; then
+        # produces spinner indicator
+        while kill -0 $pid &>/dev/null; do
+            echo -ne "\r[${str[$index]}] $msg  "
+            sleep $delay
+            index=$(( $(( $index + 1 )) % ${#str[@]} ))
+        done
     else
-        echo -en "\r[...] "$2""
-        wait $pid
+        # or a simpler indicator
+        echo -en "\r[...] $msg"
     fi
- 
-    wait $pid
- 
-    local ret=$?
-    if ! (( $ret )); then
-        echo -en "\r$_SUCCESS "$2"  \n"
-    else 
-        echo -en "\r$_FAIL "$2"  \n" 
+
+    # block
+    if wait $pid ; then
+        ret=$?
+        echo -en "\r$_SUCCESS $msg    \n"
+    else
+        ret=$?
+        echo -en "\r$_FAIL $msg       \n"
     fi
- 
+
     return $ret
 }
- 

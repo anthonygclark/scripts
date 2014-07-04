@@ -3,9 +3,8 @@
 echo "AUTHORIZED KEYS"
 echo "---------------"
 tmp=$(mktemp)
-cat $HOME/.ssh/authorized_keys | while read key; do
-  echo "$key" > $tmp
-  f=$(ssh-keygen -lf $tmp)
-  echo "$f"
+cat "$HOME"/.ssh/authorized_keys | while read key; do
+  echo "$key" > "$tmp"
+  ssh-keygen -lf "$tmp"
 done
-rm $tmp
+rm "$tmp"
