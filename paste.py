@@ -5,65 +5,87 @@ import subprocess
 import string
 import random
 import os
+import io
 import shutil
 
-# Anthony Clark
-# Simple paste service.
-# Requires: bootstrap.min.css
-#
-# TODO fallback for missing bootstrap css
-#
-
 ############## 
-PASTE_DIR = "%s/web/paste" % (os.getenv('HOME'))
-SERVER	  = "http://localhost/paste"
-BOOTSTRAP_LOCATION = "../../static/bootstrap.min.css"
-##############
+SERVER     = "http://localhost/paste"
+PASTE_DIR  = "{}/web/paste".format(os.path.expanduser('~'))
+BOOTSTRAP  = [
+				'../../static/bootstrap.min.css', 
+				'../../static/bootstrap-theme.min.css',
+				'../../static/jquery.min.js',
+				'../../static/bootstrap.min.js',
+			]
+STYLES     = [
+				'kellys'         , 'bclear'          , 'molokai' , 'nightshimmer' ,
+				'solarized-dark' , 'solarized-light' , 'night'   ,
+				'bright'         , 'camo'            , 'clarity' , 'darkblue'     ,
+				'darkspectrum'   , 'freya'           , 'fruit'   ,
+				'kellys'         , 'matrix'          , 'print'   , 'zenburn'
+			]
 
 HLCMD =\
-"""highlight --style=moria -S {0} -I --inline-css -i {1} -T {2} > {3}"""
+"""highlight --style={style} -S {extension} -I --inline-css -i {file} -T {file} -K 9 -l -f --enclose-pre --replace-tabs=4 --anchors -y line"""
 
-HLCMD_N =\
-"""highlight --style=moria -l -S {0} -I --inline-css -i {1} -T {2} > {3}"""
+HEADER=\
+"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{name}</title>
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="{bs1}">
+<link rel="stylesheet" href="{bs2}">
+</head>
+<body style="padding: 10px 50px 10px 50px; background-color: #6D6D6D;">
+"""
 
 DIV_WRAPPER=\
 """
-<link href='%s' rel='stylesheet'>
-</head>
-<div class="panel">
-  <div class="panel-heading">
-    <h3 class="panel-title">{0}</h3>
-        <br>
-		<a style="text-decoration: none !important;" href="{0}"><span class="label label-info">Download</span></a>
-		<a style="text-decoration: none !important;" href="{link}"><span class="label label-info">{text}</span></a>
-		<span class="label label-success">{1}</span>
-		<span class="label label">{2}</span>
-		<span class="label label">{3} lines</span>
-		<span class="label label">{4}</span>
-  </div>
-<body>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{name}</h3>
+    </div>
+    <div class="panel-body">
+        <a style="text-decoration: none !important;" href="{name}"><span class="label label-info">Download</span></a>
+        <span class="label label-success">{extension}</span>
+        <span class="label label-default">{size}</span>
+        <span class="label label-default">{lines} lines</span>
+        <span class="label label-default">{date}</span> 
 
-""" % (BOOTSTRAP_LOCATION)
+
+		<div class="pull-right" style="padding-right:30px">
+			<div class="btn-group">
+				<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Color: %s  <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					{styles}
+				</ul>
+			</div>
+		</div>
+
+    </div>
+</div>
+<div class="well">
+"""
 
 
 FOOTER=\
 """
-<div class="panel-footer">
-	<a style="text-decoration: none !important;" href="#top"><span class="label label">&uarr;</span>
 </div>
-</div>
+
+<script src="{bs3}"></script>
+<script src="{bs4}"></script>
 </body>
 </html>
 """
-#############
 
-# Returns nice extension identification
-# 
-# Passed "txt" if we cannot get extension
-# from file at read time.
-#
-# We fallback on using the file extension as
-# its type if we dont have nice mapping for it
+
+
 def get_extension_type(ext):
 	return {
 		"c"   : "C",
@@ -110,44 +132,50 @@ def id_generator():
 
 
 # Make dir
-def mkdir(path, pname=""):
-	dir_name = os.path.join(path, "PASTE-%s-%s" % (id_generator(), pname))
-	try:
-		os.mkdir(dir_name)
-	except Exception as e:
-		print e
-		sys.exit(1)
+def make_directory_structure(path, pname):
+	dir_name = os.path.join(path, "PASTE-%s-%s" % (pname, id_generator()))
+	os.mkdir(dir_name)
 	return dir_name
 
 
-# Inserts modifications
-# Because we have 2 index files, (with/without lines),
-# we have a button in our div that we want different
-# for each index.
-def insert_div(path, data, link, text):
-	lines = []
+def highlight_file(_file, _def_style, _dest):
+	cmd = HLCMD.format(style=STYLES[0],
+			extension=_ext,
+			file=_file,
+			dest=_dest).split(' ')
+	
+	html_buff = io.BytesIO()
+	
+	for style in STYLES:
+		# could use --output-path
+		if style == _def_style:
+			dest = os.path.join(_dest, 'index.html'.format(style))
+		else:
+			dest = os.path.join(_dest, 'index-{}.html'.format(style))
 
-	# Fill in data, 
-	div = DIV_WRAPPER.format(*data, link=link, text=text)
- 
-	# Remove stuff and add our div
-	# and footer
-	with open(path, 'r') as inf:
-		lines = inf.readlines()
-		lines[5] = div
-		lines[6] = ""
-		lines = lines[:-3]
-		lines.append(FOOTER)
+		cmd = HLCMD.format(style=style,
+				extension=_ext,
+				file=_file,
+				dest=dest)
 
-	# write to new file
-	with open(path, 'w') as inf:
-		inf.write(''.join(lines))		
-
+		proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE, bufsize=-1)
+		
+		stdout, stderr = proc.communicate(html_buff.getvalue())
+		if len(stderr):
+			raise Exception(stderr)
+		
+		print '{0:20s} --> {1}'.format(style, dest)
+		with open(dest, 'w+') as html:
+			html.write(HEADER)
+			html.write(DIV_WRAPPER % style)
+			html.write(stdout)
+			html.write(FOOTER)
 
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print "%s FILE [SYNTAX]" % os.path.basename(sys.argv[0])
+	if len(sys.argv) < 2 or len(sys.argv) > 4:
+		print "%s FILE [SYNTAX] [DEFAULT STYLE]" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
 	# Get file properties and extension
@@ -160,35 +188,48 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		_ext = sys.argv[2]
 	else:
-		# Parse out extension from file
-		_ext = os.path.splitext(_file)[1][1:]
+		_ext = os.path.splitext(_file)[1][1:] or 'txt'
+
+	if len(sys.argv) == 4:
+		_def_style = sys.argv[3]
+		if _def_style not in STYLES:
+			print 'Style %r not available' % _def_style
+			print 'Available Styles:',', '.join(STYLES)
+			sys.exit(2)
+	else:
+		_def_style = STYLES[0]
 	
-	# Assure there is SOMETHING in the ext
-	if not _ext: _ext = 'txt'
+	styles_menu = []
+	menu_str = '<li><a href=\"{0}.html\">{1}</a></li>\n'
+	styles_menu.append(menu_str.format('index', _def_style))
+	for style in filter(lambda x: x != _def_style, STYLES):
+		styles_menu.append(menu_str.format(('index-'+style), style))
+	
+	# Preformat all of the HTML templates
+	HEADER = HEADER.format(name=_file, bs1=BOOTSTRAP[0], bs2=BOOTSTRAP[1])
+	
+	DIV_WRAPPER = DIV_WRAPPER.format(
+			name=_basename,
+			extension=get_extension_type(_ext),
+			size=_size,
+			lines=_lines,
+			date=_date,
+			styles=''.join(styles_menu))
+
+	FOOTER = FOOTER.format(bs3=BOOTSTRAP[2], bs4=BOOTSTRAP[3])
 
 	# Create the dir
-	_dest	= mkdir(PASTE_DIR, os.path.basename(_file))
-	if not _dest: sys.exit(1)
-
-	# Set output file names
-	_out	= os.path.join(_dest, "index.html")
-	_out_n	= os.path.join(_dest, "index_num.html")
+	_dest = make_directory_structure(PASTE_DIR, _basename)
 	
-	# Copy code to the dir
-	shutil.copy(_file, _dest)
-
-	# Run highlight
 	try:
-		subprocess.check_call(HLCMD.format(_ext, _file, _basename, _out), shell=True)
-		subprocess.check_call(HLCMD_N.format(_ext, _file, _basename, _out_n), shell=True)
-	except:
-		print 'Reverting.'
+		# Run highlight
+		highlight_file(_file, _def_style, _dest)
+		# Copy code to the dir
+		shutil.copy(_file, _dest)
+		# Print result
+		print "{}/{}".format(SERVER, os.path.basename(_dest))
+	except Exception as e:
+		print '!! Reverting !!'
+		print e
 		shutil.rmtree(_dest)
 		sys.exit(2)
-
-	# fix HTML
-	insert_div(_out, [_basename, get_extension_type(_ext), _size, _lines, _date], "index_num.html", "Show Line Numbers")
-	insert_div(_out_n, [_basename, get_extension_type(_ext), _size, _lines, _date], "index.html", "Hide Line Numbers")
-
-	# Print result
-	print "{}/{}".format(SERVER, os.path.basename(_dest))
