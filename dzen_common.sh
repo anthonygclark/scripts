@@ -190,7 +190,7 @@ function hdd()
 # -- Memory {{{ 
 function mem() 
 {
-    printf "$(icon $MEM_ICON) %0.0f%%" $(free -t | grep "buffers/cache" | awk '{print ($3*100)/($4)}')
+    printf "$(icon $MEM_ICON) %0.0f%%" $(awk '{print 100.0/(($3+$4)/$3)}' <(grep 'buffers/cache' <(free -t)))
 }
 #}}}
 

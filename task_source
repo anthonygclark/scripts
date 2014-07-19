@@ -1,4 +1,4 @@
-# vim: set ft=sh
+# vim: ft=sh
 export logFile=${logFile:-/dev/null}
 
 function waitProgress()
@@ -7,9 +7,13 @@ function waitProgress()
     local msg=$1
     local delay=0.25
     local str=("/" "-" "\\" "|")
+    local str_l=${#str[@]}
+    local str_color=(1 2 3 4 5 6 7)
+    local str_color_l=${#str_color[@]}
     local index=0
-    local _FAIL="[-]"
-    local _SUCCESS="[+]"
+    local index_c=0
+    local _FAIL="[$(tput setaf 1)-$(tput sgr0)]"
+    local _SUCCESS="[$(tput setaf 2)+$(tput sgr0)]"
     local _NOTE="[*]"
     
     [[ -z $msg ]] && { 
@@ -19,9 +23,10 @@ function waitProgress()
     if [[ -t 1 ]]; then
         # produces spinner indicator
         while kill -0 $pid &>/dev/null; do
-            echo -ne "\r[${str[$index]}] $msg  "
+            echo -ne "\r[$(tput setaf $index_c)${str[$index]}$(tput sgr0)] $msg  "
             sleep $delay
-            index=$(( $(( $index + 1 )) % ${#str[@]} ))
+            index=$(( $(( $index + 1 )) % $str_l ))
+            index_c=$(( $(( $index_c + 1 )) % $str_color_l ))
         done
     else
         # or a simpler indicator
