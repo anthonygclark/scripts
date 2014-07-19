@@ -8,6 +8,26 @@ import os
 import io
 import shutil
 
+# This expects a layout like
+# ~/web
+#	├── paste
+#	│   └── PASTE-*-* (generated from this script)
+#	└── static
+#	    ├── bootstrap.min.css
+#	    ├── bootstrap.min.js
+#	    ├── bootstrap-theme.min.css
+#	    └── jquery.min.js
+#
+#
+# To get the bootstrap files, visit
+#  http://getbootstrap.com/customize
+# 
+# You need JQUERY >= 1.11
+#
+# You also need:
+#	highlight >= 3.0
+
+
 ############## 
 SERVER     = "http://localhost/paste"
 PASTE_DIR  = "{}/web/paste".format(os.path.expanduser('~'))
@@ -18,11 +38,11 @@ BOOTSTRAP  = [
 				'../../static/bootstrap.min.js',
 			]
 STYLES     = [
-				'kellys'         , 'bclear'          , 'molokai' , 'nightshimmer' ,
+				'nightshimmer'   , 'bclear'          , 'kellys'  ,
 				'solarized-dark' , 'solarized-light' , 'night'   ,
-				'bright'         , 'camo'            , 'clarity' , 'darkblue'     ,
+				'bright'         , 'molokai'         , 'clarity' ,
 				'darkspectrum'   , 'freya'           , 'fruit'   ,
-				'kellys'         , 'matrix'          , 'print'   , 'zenburn'
+				'kellys'         , 'matrix'          , 'print'
 			]
 
 HLCMD =\
@@ -37,9 +57,9 @@ HEADER=\
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{name}</title>
 
-<!-- Bootstrap -->
 <link rel="stylesheet" href="{bs1}">
 <link rel="stylesheet" href="{bs2}">
+
 </head>
 <body style="padding: 10px 50px 10px 50px; background-color: #6D6D6D;">
 """
@@ -48,7 +68,7 @@ DIV_WRAPPER=\
 """
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">{name}</h3>
+        <span class="h3"><strong class="text-muted">{name}</strong></span>
     </div>
     <div class="panel-body">
         <a style="text-decoration: none !important;" href="{name}"><span class="label label-info">Download</span></a>
@@ -88,20 +108,27 @@ FOOTER=\
 
 def get_extension_type(ext):
 	return {
-		"c"   : "C",
-		"py"  : "Python",
-		"cu"  : "Cuda",
-		"cuh" : "Cuda Header",
-		"cpp" : "C++",
-		"rb"  : "Ruby",
-		"sh"  : "Bash",
-		"bat" : "Batch",
-		"java": "Java",
-		"h"   : "C-Header",
-		"m"   : "Objective-C",
-		"js"  : "JavaScript",
-		"s"   : "Assembly",
-		"lsp" : "LISP",
+		"c"   : "C"            ,
+		"py"  : "Python"       ,
+		"cu"  : "Cuda"         ,
+		"cuh" : "Cuda Header"  ,
+		"cpp" : "C++"          ,
+		"cc"  : "C++"          ,
+		"C"   : "C++"          ,
+		"tcc" : "C++-Template" ,
+		"rb"  : "Ruby"         ,
+		"sh"  : "Bash/Shell"   ,
+		"bat" : "Batch"        ,
+		"java": "Java"         ,
+		"h"   : "C-Header"     ,
+		"hpp" : "C++-Header"   ,
+		"m"   : "Objective-C"  ,
+		"js"  : "JavaScript"   ,
+		"s"   : "Assembly"     ,
+		"lsp" : "LISP"         ,
+		"lua" : "Lua"          ,
+		"tcl" : "Tcl"          ,
+		"log" : "Plain-Text"   ,
 		"txt" : "Plain-Text"
 	}.get(ext, ext.upper())
 
