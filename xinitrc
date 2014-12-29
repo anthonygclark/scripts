@@ -2,7 +2,6 @@
 
 # Fix QT Apps
 export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
-#/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Fonts
 xset +fp /usr/share/fonts/local
@@ -17,16 +16,27 @@ if which $DZEN &>/dev/null; then
     $(sleep 2 ; bash $DZEN) &
 fi
 
-# MPD
-if which mpd &>/dev/null; then 
-    mpd && mpdscribble &
+# MPDSCRIBBLE
+USE_MPDSCRIBBLE=false
+
+# mpd
+if which mpd &>/dev/null; then
+    mpd & 
+    if $USE_MPDSCRIBBLE && which mpdscribble &>/dev/null; then
+        mpdscribble & 
+    fi
 fi
 
 # Fix Java Swing
-wmname LG3D
+if which wmname &>/dev/null; then
+    wmname LG3D
+fi
 
 # Xresources
 [[ -f ~/.Xresources ]] && xrdb -merge ~/.Xresources
+
+# For gnome services
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # DWM
 while true; do

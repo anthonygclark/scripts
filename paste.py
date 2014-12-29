@@ -1,4 +1,5 @@
 #!/usr/bin/env python2 
+# -*- coding: latin-1 -*-
 import sys
 import datetime
 import subprocess
