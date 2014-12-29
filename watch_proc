@@ -1,2 +1,2 @@
 #!/bin/bash
-watch "ps H -C $1 -o 'pid tid pcpu comm size'"
+watch -n 1 "ps H -C $1 -o 'pid tid pcpu comm rss'"

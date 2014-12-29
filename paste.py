@@ -10,13 +10,13 @@ import shutil
 
 # This expects a layout like
 # ~/web
-#	├── paste
-#	│   └── PASTE-*-* (generated from this script)
-#	└── static
-#	    ├── bootstrap.min.css
-#	    ├── bootstrap.min.js
-#	    ├── bootstrap-theme.min.css
-#	    └── jquery.min.js
+#	|-- paste
+#	|-- PASTE-*-* (generated from this script)
+#	`-- static
+#	    |-- bootstrap.min.css
+#	    |-- bootstrap.min.js
+#	    |-- bootstrap-theme.min.css
+#	    `-- jquery.min.js
 #
 #
 # To get the bootstrap files, visit
@@ -26,6 +26,7 @@ import shutil
 #
 # You also need:
 #	highlight >= 3.0
+#   vim (with +html)
 
 
 ############## 
@@ -202,15 +203,23 @@ def highlight_file(_file, _def_style, _dest):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2 or len(sys.argv) > 4:
-		print "%s FILE [SYNTAX] [DEFAULT STYLE]" % os.path.basename(sys.argv[0])
+		print "%s FILE [--style=STYLE] [--syntax=SYNTAX] [--vim]" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
+	_args_space_sep = [i.split('=') for i in sys.argv if '=' in i]
+	args = [i[0] for i in _args_space_sep]
+	vals = [i[1] for i in _args_space_sep]
+
+	if '':
+		sys.exit(1)
+	
 	# Get file properties and extension
 	_file	  = os.path.abspath(sys.argv[1])
 	_basename = os.path.basename(_file)
 	_lines	  = sum(1 for line in open(_file))
 	_date	  = datetime.datetime.now().strftime('%A, %b %d, %Y %I:%M%p')
 	_size	  = get_size(_file)
+
 
 	if len(sys.argv) == 3:
 		_ext = sys.argv[2]
@@ -236,12 +245,12 @@ if __name__ == '__main__':
 	HEADER = HEADER.format(name=_file, bs1=BOOTSTRAP[0], bs2=BOOTSTRAP[1])
 	
 	DIV_WRAPPER = DIV_WRAPPER.format(
-			name=_basename,
-			extension=get_extension_type(_ext),
-			size=_size,
-			lines=_lines,
-			date=_date,
-			styles=''.join(styles_menu))
+			name      = _basename,
+			extension = get_extension_type(_ext),
+			size      = _size,
+			lines     = _lines,
+			date      = _date,
+			styles    = ''.join(styles_menu))
 
 	FOOTER = FOOTER.format(bs3=BOOTSTRAP[2], bs4=BOOTSTRAP[3])
 

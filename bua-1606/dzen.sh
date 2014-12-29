@@ -1,5 +1,7 @@
 #!/bin/bash
-EnvY=$Y # get Y from environment
+EnvY=$Y
+EnvIFACE=$IFACE
+
 source $(dirname $(readlink -f $0))/../dzen_common.sh
 
 # redefining icons
@@ -17,17 +19,16 @@ DBOX_ICON="DBOX"
 UP_ICON="UP"
 DOWN_ICON="DWN"
 WIRELESS_ICON="WIFI"
-
 CLOCK_FORMAT="%I:%M %A %D"
-IFACE=wlp2s0
+
+IFACE=${EnvIFACE:-"lo"}
 
 # Find the width of the attached monitors
 # and set X (x-offset) to the correct right corner-width
 __arr=($(xdpyinfo | grep dimensions))
 X=$(cut -dx -f1 <<< ${__arr[1]})
 X=$(bc <<< $X-$WIDTH)
-
-Y=${EnvY:-1}
+Y=${EnvY:-0}
 
 # redefine icon() since we arent using xpm icons
 function icon() 

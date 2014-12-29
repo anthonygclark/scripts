@@ -90,7 +90,7 @@ function bar()
 
 function crit_bar() 
 {
-    echo $1 | $BAR_EXEC $CRIT_BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
+    echo "$1" | $BAR_EXEC $CRIT_BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 #}}} 
 
@@ -109,7 +109,8 @@ function battery()
         *)              ret="$(icon $BATTERY_MISSING_ICON)"     ;; 
     esac
 
-    if [[ -n $percent_ ]] ; then 
+    if [[ -n $percent_ ]] ; 
+    then 
         if (( percent_ <= $CRITICAL_PERCENTAGE )) ; then
             ret="$ret $(crit_bar $percent_ $BAR_CRITICAL_COLOR)"
         else
@@ -127,9 +128,12 @@ function wireless()
 {
     local ret="$(icon $WIRELESS_ICON)"
     
-    if grep $IFACE /proc/net/wireless &>/dev/null ; then
+    if grep $IFACE /proc/net/wireless &>/dev/null ;
+    then
         local quality_=$(grep $IFACE /proc/net/wireless | cut -d ' ' -f 5 | tr -d '.')
-        if (( $quality_ <= $CRITICAL_PERCENTAGE )); then
+        
+        if (( $quality_ <= $CRITICAL_PERCENTAGE ));
+        then
             ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE crit_bar $quality_ $BAR_CRITICAL_COLOR)"
         else
             ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE bar $quality_ $BAR_FG_COLOR)"
@@ -146,9 +150,12 @@ function wireless()
 # -- Volume  {{{
 function volume()
 {
+    local channel="PCM"
     local ret="$(icon $VOLUME_ICON)"
-    local volume_=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
-    if [[ -z $(amixer get Master | grep "\[on\]") ]]; then
+    local volume_="$(amixer get $channel | egrep -o "[0-9]+%" | head -1 | tr -d "%")"
+
+    if [[ -z $(amixer get $channel | grep "\[on\]") ]];
+    then
         echo -n "$ret $(bar $volume_ $BAR_OFF_COLOR)"
     else
         echo -n "$ret $(bar $volume_ $BAR_FG_COLOR)"
@@ -202,7 +209,7 @@ function net()
     TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
     local NEW_RX=$(bc <<< "($RXBN - $RXB) / 1024 / $REFRESH_RATE")
     local NEW_TX=$(bc <<< "($TXBN - $TXB) / 1024 / $REFRESH_RATE")
-    echo -n "$(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
+    echo -n "($IFACE) $(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
     RXB=$(($RXBN))
     TXB=$(($TXBN))
 }

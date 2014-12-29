@@ -1,0 +1,6 @@
+#!/bin/bash
+TYPE=${1:-txt}; 
+COLOR=${2:-"kellys"}
+echo
+highlight -l -S $TYPE --style=$COLOR -O xterm256 3<&0 || cat 3<&0
+echo
