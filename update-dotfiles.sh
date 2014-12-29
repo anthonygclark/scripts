@@ -44,7 +44,7 @@ function _copy()
             dest="${REPO}"
         fi
         
-        cp -r "$i" "${dest}"
+        cp -r "$i" "${dest}" &>>/dev/null
     done
 }
 
@@ -55,6 +55,7 @@ function _weechat()
     rm -f ${REPO}/.weechat/weechat.log
     rm -rf ${REPO}/.weechat/logs
     rm -f ${REPO}/.weechat/script/*.gz
+    rm -f ${REPO}/.weechat/weechat_fifo*
 } >>$logFile
 
 function _vim()

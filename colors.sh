@@ -11,6 +11,7 @@ Usage $0:
   -z Show color zigzags
   -h Show color hashes
   -p Show color pipes
+  -d Show color dots
 EOF
 }
 
@@ -128,6 +129,33 @@ function pipes()
 }
 
 
+function dots()
+{
+    echo
+
+    for i in {0..7}; 
+    do 
+        echo -en "\e[0;3${i}m⣿⣿⣿⣿\e[0m"
+    done
+
+    echo
+
+    for i in {0..7}; do
+        echo -en "\e[0;3${i}m⣿⣿⣿⣿\e[0m"
+    done
+
+    echo
+
+    for i in {0..7}; 
+    do 
+        echo -en "\e[1;3${i}m⣿⣿⣿⣿\e[0m"
+    done
+
+    echo
+    echo
+}
+
+
 if [ $# -lt 1 ]
 then
     echo "ERROR: Need argument"
@@ -135,7 +163,7 @@ then
 fi
 
 
-while getopts "bzhp" opt; do
+while getopts "bzhpd" opt; do
     case $opt in
         b)
             block;;
@@ -145,6 +173,8 @@ while getopts "bzhp" opt; do
             colorHash;;
         p)
             pipes;;
+        d)
+            dots;;
         \?)
             usage
             ;;
