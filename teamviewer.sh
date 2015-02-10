@@ -4,9 +4,13 @@ if ! which teamviewer > /dev/null; then
 fi
 
 echo "Starting service"
-sudo systemctl restart teamviewerd
+sudo systemctl restart teamviewerd || exit 1
+sleep 1
 
 echo "Starting teamviewer"
-teamviewer
+teamviewer || exit 1
+sleep 1
 
+echo "Stopping service"
 sudo systemctl stop teamviewerd
+sleep 1

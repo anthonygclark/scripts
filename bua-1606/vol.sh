@@ -4,7 +4,7 @@
 #
 
 #Customize this stuff
-IF="PCM"            # audio channel: Master|PCM
+IF="Master"         # audio channel: Master|PCM
 SECS="1"            # sleep $SECS
 BG="#151515"        # background colour of window
 FG="#eeeeee"        # foreground colour of text/icon

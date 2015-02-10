@@ -1,0 +1,28 @@
+#!/bin/bash
+# Silly graphical interface for choosing an available
+# /dev/tty* port for gtkterm. Should be used for connecting
+# the Xilinx board via UART (not JTAG)
+
+get_ports() {
+    local list=$(dmesg | grep "cp210x" | grep -oh "tty\w*" | sort -u)
+    for port in $list;
+    do
+        [[ -e "/dev/$port" ]] && {
+            printf "FALSE %s \\" /dev/$port
+        }
+    done
+    printf "FALSE %s" /dev/null
+}
+
+port=$(zenity --list \
+          --title="Pixnet UART Connect" \
+          --text="Select Port" \
+          --radiolist \
+          --column="    " \
+          --column="Discovered Ports (recent first)" \
+          $(get_ports))
+
+[ -z $port ] && exit 1
+#gtkterm -p $port -s 115200 -b 8 -a none -t 1
+urxvt -e sh -c "screen $port 115200,cs8"
+

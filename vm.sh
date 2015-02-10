@@ -27,6 +27,7 @@ function vmcmd()
     case $cmd in
         start) nohup VBoxHeadless -s ${VM} -v config $@ 1>>$LOGFILE 2>>$LOGFILE &;;
         stop) VBoxManage controlvm ${VM} acpipowerbutton $@ 1>>$LOGFILE 2>>$LOGFILE &;;
+        res) VBoxManage controlvm ${VM} setvideomodehint $@ 1>>$LOGFILE 2>>$LOGFILE &;;
         *) VBoxManage controlvm ${VM} $cmd $@ 1>>${LOGFILE} 2>>${LOGFILE} &;;
     esac
 }

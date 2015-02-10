@@ -139,7 +139,7 @@ function wireless()
             ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE bar $quality_ $BAR_FG_COLOR)"
         fi
     else
-        ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE bar 100 $BAR_OFF_COLOR)"
+        ret="$(ICON_COLOR=$RED icon $WIRELESS_ICON) $(BAR_STYLE=$WIFI_BAR_STYLE bar 100 $BAR_OFF_COLOR)"
     fi
     
     echo -n "$ret"
@@ -150,7 +150,7 @@ function wireless()
 # -- Volume  {{{
 function volume()
 {
-    local channel="PCM"
+    local channel="Master"
     local ret="$(icon $VOLUME_ICON)"
     local volume_="$(amixer get $channel | egrep -o "[0-9]+%" | head -1 | tr -d "%")"
 
@@ -172,7 +172,7 @@ function clock()
 #}}}
 
 
-# -- Nvidia {{{
+# -- Nvidia {{{ 
 function nvidia()
 {
     local ret="$(icon $GPU_ICON) GPU:"
@@ -185,11 +185,17 @@ function nvidia()
 }
 #}}}
 
-
-# -- Hard disks {{{
+ 
+# -- Hard disks {{{  
 function hdd()
 {
-    echo -n "$(icon $HDD_ICON) $(df | grep "$1" | awk '{print $5}')"
+    local used=$(df | grep "$1" | awk '{print $5}' | cut -d% -f1)
+
+    if (( $(bc <<< "$used >= 75") )); then
+        echo -n "$(ICON_COLOR=$YELLOW icon $HDD_ICON) $used%"
+    else
+        echo -n "$(icon $HDD_ICON) $used%"
+    fi
 }
 # }}}
 
@@ -197,7 +203,14 @@ function hdd()
 # -- Memory {{{ 
 function mem() 
 {
-    printf "$(icon $MEM_ICON) %0.0f%%" $(awk '{print 100.0/(($3+$4)/$3)}' <(grep 'buffers/cache' <(free -t)))
+    local used=$(printf "%0.0f" $(head -2 <(free -t) | tail -1 | awk '{print 100.0/(($3+$4)/$3)}'))
+
+    if (( $(bc <<< "$used >= 75") )); then
+        echo -n "$(ICON_COLOR=$YELLOW icon $MEM_ICON) $used%"
+    else
+        echo -n "$(icon $MEM_ICON) $used%"
+    fi
+
 }
 #}}}
 
