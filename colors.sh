@@ -93,7 +93,7 @@ function colorHash()
 
 function pipes() 
 {
-    declare -i f=75 s=13 r=2000 t=0 c=1 n=0 l=0
+    declare -i f=75 s=13 r=20000 t=0 c=1 n=0 l=0
     declare -ir w=$(tput cols) h=$(tput lines)
     declare -i x=$((w/2)) y=$((h/2))
     declare -ar v=( [00]="\x83" [01]="\x8f" [03]="\x93"

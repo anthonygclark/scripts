@@ -142,7 +142,7 @@ function wireless()
         ret="$(ICON_COLOR=$RED icon $WIRELESS_ICON) $(BAR_STYLE=$WIFI_BAR_STYLE bar 100 $BAR_OFF_COLOR)"
     fi
     
-    echo -n "$ret"
+    echo -n "^ca(1, wicd-gtk -n &>>/dev/null)${ret}^ca()"
 }
 #}}}
 
@@ -203,7 +203,8 @@ function hdd()
 # -- Memory {{{ 
 function mem() 
 {
-    local used=$(printf "%0.0f" $(head -2 <(free -t) | tail -1 | awk '{print 100.0/(($3+$4)/$3)}'))
+    local used=$(free -t | head -2 | tail -1 | awk '{print 100-int(($7/$2)*100)}')
+    #echo (( 100 - $used )) >> /tmp/f
 
     if (( $(bc <<< "$used >= 75") )); then
         echo -n "$(ICON_COLOR=$YELLOW icon $MEM_ICON) $used%"
@@ -218,6 +219,7 @@ function mem()
 # -- Network {{{ 
 function net()
 {
+    #TODO check iface
     RXBN=$(cat /sys/class/net/${IFACE}/statistics/rx_bytes)
     TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
     local NEW_RX=$(bc <<< "($RXBN - $RXB) / 1024 / $REFRESH_RATE")
@@ -271,6 +273,7 @@ function dbox()
     
     DB_COUNTER=0
 
+    #TODO dropbox-cli soon
     local _res="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
     local _lres=${_res,,}
     DB_CACHE=${_lres}

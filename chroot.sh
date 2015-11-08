@@ -31,7 +31,7 @@ mount -o bind /dev "$CHROOT_PATH"/dev
 echo "Sharing mount info"
 cp /proc/mounts "$CHROOT_PATH"/etc/mtab 
 
-TERM=xterm chroot $CHROOT_PATH
+TERM=xterm chroot $CHROOT_PATH /bin/bash -l
 
 echo "Unmounting ... "
 umount "$CHROOT_PATH"/proc

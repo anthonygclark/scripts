@@ -210,9 +210,6 @@ if __name__ == '__main__':
 	_args_space_sep = [i.split('=') for i in sys.argv if '=' in i]
 	args = [i[0] for i in _args_space_sep]
 	vals = [i[1] for i in _args_space_sep]
-
-	if '':
-		sys.exit(1)
 	
 	# Get file properties and extension
 	_file	  = os.path.abspath(sys.argv[1])
