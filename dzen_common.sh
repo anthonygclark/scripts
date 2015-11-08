@@ -41,7 +41,9 @@ TEXT_ALIGNMENT="right"
 # and set X (x-offset) to the correct right corner-width
 __arr=($(xdpyinfo | grep dimensions))
 X=$(cut -dx -f1 <<< ${__arr[1]})
+echo ${X} > /tmp/x
 X=$(bc <<< $X-$WIDTH)
+echo ${X} >> /tmp/x
 Y=1
 
 BATTERY_CHARGING_ICON="${ICON_SRC}/ac_01.xbm"
@@ -203,7 +205,7 @@ function hdd()
 # -- Memory {{{ 
 function mem() 
 {
-    local used=$(printf "%0.0f" $(head -2 <(free -t) | tail -1 | awk '{print 100.0/(($3+$4)/$3)}'))
+    local used=$(printf "%0.0f" $(free | sed -n '2p' | awk '{print 100.0 - (($7/$2)*100)}'))
 
     if (( $(bc <<< "$used >= 75") )); then
         echo -n "$(ICON_COLOR=$YELLOW icon $MEM_ICON) $used%"
@@ -271,7 +273,7 @@ function dbox()
     
     DB_COUNTER=0
 
-    local _res="$(dropbox status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
+    local _res="$(dropbox-cli status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
     local _lres=${_res,,}
     DB_CACHE=${_lres}
 

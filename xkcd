@@ -1,0 +1,128 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import wx
+import os
+import sys
+import requests
+import urllib
+from bs4 import BeautifulSoup
+
+class XKCD(object):
+	XKCD_BASE_URL = 'http://xkcd.com/'
+	TESTING = 0
+
+	def __init__(self, comic_number=''):
+
+		self.content      = None
+		self.comic_number = None
+		self.image_url    = None
+		self.title        = None
+		self.subtext      = None
+		self._soup        = None
+	
+		if comic_number:
+			try:
+				int(comic_number)
+			except ValueError:
+				raise ValueError('comic_number must be valid')
+		
+		self.comic_number = comic_number
+		self.content = self._get_page_content()
+		self._soup = BeautifulSoup(self.content, 'lxml')
+		
+		self.image_url = self._get_image_url()
+		self.subtext = self._get_image_subtext()
+		self.title = self._get_image_title()
+
+# public
+	def get_image_properties(self):
+		return (self.title, self.subtext, self.image_url)
+
+# private
+	def _get_page_content(self):
+		if self.TESTING:
+			with open('/tmp/test.html', 'r') as t:
+				return t.read()
+		else:
+			request = requests.get(self.XKCD_BASE_URL + self.comic_number)
+			
+			if request.status_code not in [200]:
+				raise Exception('Cannot reach xkcd.com or comic_number ({}) does not exist'
+						.format(comic_number))
+			return request.content
+
+	def _get_image_url(self):
+		div = self._soup.find('div', {'id':'comic'})
+		img = div.find('img')
+		img_src = img['src']
+		return img_src
+
+	def _get_image_title(self):
+		div = self._soup.find('div', {'id':'ctitle'})
+		return div.text
+
+	def _get_image_subtext(self):
+		div = self._soup.find('div', {'id':'comic'})
+		img = div.find('img')
+		img_title =  img['title']
+		return img_title
+
+
+class XKCD_UI(wx.Frame):
+	IMAGE_DEST = '/tmp/xkcd_comic.png'
+	TESTING = 0
+
+	def __init__(self, parent, xkcd_inst):
+		super(XKCD_UI, self).__init__(parent, title='') # , size=(700, 400))
+
+		xkcd_props = xkcd_inst.get_image_properties()
+		self.window_title = xkcd_props[0]
+		self.image_text = xkcd_props[1]
+		self.image_url = xkcd_props[2]
+
+		self.SetTitle(self.window_title)
+		self.Bind(wx.EVT_CLOSE, self._on_close)
+		self._retrieve_image()
+		self._init_frame_elements()
+		self.Show()
+
+	def _init_frame_elements(self):
+		# font
+		panel = wx.Panel(self)
+		font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
+		font.SetPointSize(9)
+		# panels 
+		vbox = wx.BoxSizer(wx.VERTICAL)
+		hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+		st2 = wx.StaticText(panel, label=self.image_text)
+		st2.SetFont(font)
+		hbox2.Add(st2)
+		vbox.Add(hbox2, flag=wx.EXPAND | wx.RIGHT | wx.LEFT | wx.TOP, border=10)
+		vbox.Add((-1, 10))
+		hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+		img = wx.StaticBitmap(panel, -1, wx.Bitmap(self.IMAGE_DEST, wx.BITMAP_TYPE_ANY))
+		hbox3.Add(img, proportion=1, flag=wx.EXPAND)
+		vbox.Add(hbox3, proportion=1, flag=wx.LEFT  | wx.RIGHT | wx.EXPAND, border=10)
+		panel.SetSizer(vbox)
+
+	def _retrieve_image(self):
+		if not self.TESTING:
+			urllib.urlretrieve('http:' + self.image_url, self.IMAGE_DEST)
+	
+	def _on_close(self, event):
+		#os.remove(self.IMAGE_DEST)
+		#print 'Removed image'
+		self.Destroy()
+
+
+
+
+if __name__ == '__main__':
+	app = wx.App()
+	
+	comic_num = ((len(sys.argv) > 1) and sys.argv[1]) or ''
+	x = XKCD(comic_num)
+	ui = XKCD_UI(None, x)
+	
+	app.MainLoop()

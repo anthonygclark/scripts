@@ -15,12 +15,12 @@ EOF
 
 function officialonly()
 {
-    yaourt -Q | grep -v local | sed 's/^.*\///' | cut -d' ' -f1
+    comm -13 <(sort <(pacman -Qqm)) <(sort <(pacman -Qq))
 }
 
 function localonly()
 {
-    yaourt -Q | grep local | sed 's/^.*\///' | cut -d' ' -f1
+    pacman -Qqm
 }
 
 function all()

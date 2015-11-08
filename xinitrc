@@ -16,9 +16,9 @@ if which $DZEN &>/dev/null; then
     $(sleep 2 ; bash $DZEN) &
 fi
 
-# MPDSCRIBBLE
-USE_MPDSCRIBBLE=false
-
+## MPDSCRIBBLE
+#USE_MPDSCRIBBLE=false
+#
 # mpd
 if which mpd &>/dev/null; then
     mpd & 
@@ -31,6 +31,8 @@ fi
 if which wmname &>/dev/null; then
     wmname LG3D
 fi
+
+[[ -f ~/.nvidia-settings-rc ]] && nvidia-settings -l & 
 
 # Xresources
 [[ -f ~/.Xresources ]] && xrdb -merge ~/.Xresources

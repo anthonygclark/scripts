@@ -1,7 +1,12 @@
 #!/bin/bash
 source $(dirname $(readlink -m $0))/../dzen_common.sh
 
-IFACE=enp2s0
+function get_wifi_interface()
+{
+    echo $(cat /proc/net/wireless | tail -1 | cut -d: -f1)
+}
+
+IFACE=$(get_wifi_interface)
 CLOCK_FORMAT="%I:%M %A %D"
 
 MUSIC_ICON="${ICON_SRC}/note.xbm"
@@ -10,7 +15,12 @@ NEXT_ICON="${ICON_SRC}/next.xbm"
 PREV_ICON="${ICON_SRC}/prev.xbm"
 
 WIDTH=680
-X=$(bc <<< 1280-$WIDTH)
+
+# Find the width of the attached monitors
+# and set X (x-offset) to the correct right corner-width
+__arr=($(xdpyinfo | grep dimensions))
+X=$(cut -dx -f1 <<< ${__arr[1]})
+X=$(bc <<< $X-$WIDTH)
 
 function mpd()
 {

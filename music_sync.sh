@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC="/home/anthony/Music/"
 dests=(
-    "kirsten@mini:~/Music/Music"
+    "anthony@mini:~/Music/Music"
     "anthony@server:/var/Music"
 )
 

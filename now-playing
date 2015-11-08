@@ -1,7 +1,2 @@
 #!/bin/bash
-STR=$(ncmpcpp --now-playing "%a - %b : %t")
-if [[ -z $STR ]] ; then
-    STR=$(ncmpcpp --now-playing)
-fi
-
-notify-send -u normal "$STR"
+notify-send -u normal "$(mpc | head -1)"
