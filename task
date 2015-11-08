@@ -1,9 +1,9 @@
 #!/bin/bash
-logFile=$2
+logFile=${2}
 
 source $(dirname $(readlink -m $0))/task_source
 
-[[ $# -lt 2 ]] && {
+[[ $# -lt 1 ]] && {
 cat << EOF
 task - Run command(s) with output to file/stream with progress indicator
 Usage: task <commands string> [logfile]
@@ -26,4 +26,4 @@ if [[ "$commands" =~ "sudo" ]]; then
     sudo -v || exit 1
 fi
 
-eval "$commands" &>>$logFile & waitProgress "$(message)" || echo "Command failed"
+eval "$commands" &>> $logFile & waitProgress "$(message)" || echo "Command failed"

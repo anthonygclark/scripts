@@ -1,0 +1,3 @@
+#!/bin/bash
+[[ $1 == "work" ]] && chromium -app="http://192.1.19.34:333"
+[[ $1 == "home" ]] && chromium -app="http://anthonys-iphone:333"

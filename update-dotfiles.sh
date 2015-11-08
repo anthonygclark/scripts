@@ -24,6 +24,8 @@ FILES=(
 "$HOME/.tmux.conf"
 "$HOME/.weechat"
 "$HOME/.config/dunst/dunstrc"
+"$HOME/.config/QtProject/qtcreator/styles/ac-light.xml"
+"$HOME/.config/QtProject/qtcreator/styles/molokai-light.xml"
 )
 
 function _copy()
@@ -44,14 +46,15 @@ function _copy()
             dest="${REPO}"
         fi
         
-        cp -r "$i" "${dest}" &>>/dev/null
+        cp -r "$i" "${dest}"
     done
-}
+} >>$logFile
 
 
 function _weechat()
 {
     sed -i 's/\.password = ".*"/\.password/g' .weechat/irc.conf
+    sed -i 's/\.sasl_password = ".*"/\.sasl_password/g' .weechat/irc.conf
     rm -f ${REPO}/.weechat/weechat.log
     rm -rf ${REPO}/.weechat/logs
     rm -f ${REPO}/.weechat/script/*.gz
@@ -71,12 +74,19 @@ function _clean()
     git clean -fdx &>/dev/null; true
 } >>$logFile
 
-cd $REPO
+function _remove_nested_git()
+{
+    find . -path '*/*/.git' -exec rm -r {} \;
+} >>$logFile
 
+cd $REPO
+_remove_nested_git & waitProgress "Removing nested git dirs"
 
 _copy    & waitProgress "Copying Dotfiles"
 _weechat & waitProgress "Sanitizing Weechat"
 _vim     & waitProgress "Cleaning vundle"
+
+_remove_nested_git & waitProgress "Removing nested git dirs"
 
 if [[ $1 != "-k" ]]; then
     _clean & waitProgress "Cleaning git"
