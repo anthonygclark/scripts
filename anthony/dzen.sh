@@ -14,20 +14,15 @@ PLAY_ICON="${ICON_SRC}/play.xbm"
 NEXT_ICON="${ICON_SRC}/next.xbm"
 PREV_ICON="${ICON_SRC}/prev.xbm"
 
-WIDTH=680
-
-# Find the width of the attached monitors
-# and set X (x-offset) to the correct right corner-width
-__arr=($(xdpyinfo | grep dimensions))
-X=$(cut -dx -f1 <<< ${__arr[1]})
-X=$(bc <<< $X-$WIDTH)
+# override X as I want dzen on my primary monitor
+X=1220
 
 function mpd()
 {
     echo -n "^ca(1, urxvt -e sh -c ncmpcpp)$(icon $MUSIC_ICON)^ca()"   
-    echo -n "^ca(1, mpc prev >/dev/null)  $(icon $PREV_ICON)^ca()"
+    echo -n "^ca(1, mpc prev >/dev/null ; now-playing)  $(icon $PREV_ICON)^ca()"
     echo -n "^ca(1, mpc toggle >/dev/null)  $(icon $PLAY_ICON)^ca()"
-    echo -n "^ca(1, mpc next >/dev/null)  $(icon $NEXT_ICON)^ca()"
+    echo -n "^ca(1, mpc next >/dev/null ; now-playing)  $(icon $NEXT_ICON)^ca()"
 }
 
 while :; do

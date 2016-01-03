@@ -24,8 +24,6 @@ FILES=(
 "$HOME/.tmux.conf"
 "$HOME/.weechat"
 "$HOME/.config/dunst/dunstrc"
-"$HOME/.config/QtProject/qtcreator/styles/ac-light.xml"
-"$HOME/.config/QtProject/qtcreator/styles/molokai-light.xml"
 )
 
 function _copy()
@@ -61,6 +59,7 @@ function _weechat()
     rm -f ${REPO}/.weechat/weechat_fifo*
 } >>$logFile
 
+
 function _vim()
 {
     rm -rf ${REPO}/.vim/bundle/*
@@ -69,15 +68,18 @@ function _vim()
     true
 } >>$logFile
 
+
 function _clean()
 {
     git clean -fdx &>/dev/null; true
 } >>$logFile
 
+
 function _remove_nested_git()
 {
     find . -path '*/*/.git' -exec rm -r {} \;
 } >>$logFile
+
 
 cd $REPO
 _remove_nested_git & waitProgress "Removing nested git dirs"

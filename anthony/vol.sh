@@ -1,28 +1,26 @@
 #!/bin/bash
 #
 # volume - dzen volume bar
-#
 
-#Customize this stuff
-IF="Master"         # audio channel: Master|PCM
-SECS="1"            # sleep $SECS
-BG="#151515"        # background colour of window
-FG="#eeeeee"        # foreground colour of text/icon
-BAR_FG="#808080"    # foreground colour of volume bar
-BAR_BG="#090909"    # background colour of volume bar
-XPOS="430"          # horizontal positioning
-YPOS="1700"          # vertical positioning
-HEIGHT="30"         # window height
-WIDTH="250"         # window width
-BAR_WIDTH="180"     # width of volume bar
+IF="Master"
+SECS="1"
+BG="#151515"
+FG="#eeeeee"
+BAR_FG_ON="#808080"
+BAR_FG_OFF="#3c3c3c"
+BAR_BG="#090909"
+XPOS=800
+YPOS=1000
+HEIGHT="30"
+WIDTH="270"
+BAR_WIDTH="200"
 ICON=~/.icons/dzen/spkr_01.xbm
-FONT="-*-clean-*-*-*-*-*-*-*-*-*-*-*-*"
+FONT="-*-tamsyn-medium-r-*-*-13-*-*-*-*-*-*-*"
 ICON_VOL=~/.icons/dzen/spkr_01.xbm
 ICON_VOL_MUTE=~/.icons/dzen/spkr_02.xbm
 ICON=$ICON_VOL
 
-#Probably do not customize
-PIPE="/tmp/dvolpipe"
+PIPE="/tmp/volshpip"
 
 err() {
     echo "$1"
@@ -30,56 +28,80 @@ err() {
 }
 
 usage() {
-    echo "usage: dvol [option] [argument]"
+    echo "usage: $0 [option] [argument]"
     echo
     echo "Options:"
     echo "     -i, --increase - increase volume by \`argument'"
     echo "     -d, --decrease - decrease volume by \`argument'"
     echo "     -t, --toggle   - toggle mute on and off"
     echo "     -h, --help     - display this"
-    exit 
-}   
+    exit
+}
+
+function get_first_sink()
+{
+    pactl list sinks | head -1 | cut -d# -f2
+}
+
+
+function pulse_get_volume()
+{
+    local ret=($(pactl list sinks | grep Volume | cut -d/ -f2 | tr -d ' ' | grep -o '[0-9]*'))
+    echo ${ret[0]}
+}
+
+
+ACTION=""
+SINK=$(get_first_sink)
 
 #Argument Parsing
-case "$1" in 
+case "$1" in
     '-i'|'--increase')
-        [ -z "$2" ] && err "No argument specified for increase."
-        [ -n "$(tr -d [0-9] <<<$2)" ] && err "The argument needs to be an integer."
-        AMIXARG="${2}%+"
+        (( $(pulse_get_volume) >= 95 )) && exit 0
+        (pactl set-sink-mute ${SINK} false &&
+        pactl set-sink-volume ${SINK} \+5\%) &
+        wait
+        ACTION='up'
         ;;
+
     '-d'|'--decrease')
-        [ -z "$2" ] && err "No argument specified for decrease."
-        [ -n "$(tr -d [0-9] <<<$2)" ] && err "The argument needs to be an integer."
-        AMIXARG="${2}%-"
+        (( $(pulse_get_volume) <= 0 )) && exit 0
+        (pactl set-sink-mute ${SINK} false &&
+        pactl set-sink-volume ${SINK} \-5\%) &
+        wait
+        ACTION='down'
         ;;
+
     '-t'|'--toggle')
-        AMIXARG="toggle"
+        pactl set-sink-mute ${SINK} toggle
+        ACTION='mute'
         ;;
-    ''|'-h'|'--help')
-        usage
-        ;;
+
     *)
         err "Unrecognized option \`$1', see dvol --help"
         ;;
 esac
 
-#Actual volume changing (readability low)
-AMIXOUT="$(amixer set "$IF" "$AMIXARG" | tail -n 1)"
-MUTE="$(cut -d '[' -f 4 <<<"$AMIXOUT")"
-VOL="$(cut -d '[' -f 2 <<<"$AMIXOUT" | sed 's/%.*//g')"
-if [ "$MUTE" = "off]" ]; then
+VOL=$(pulse_get_volume)
+MUTED=$(pactl list sinks | grep Mute\: | cut -d: -f2 | tr -d ' ')
+
+echo "muted: $MUTED" >> /tmp/f
+echo "new vol: $VOL" >> /tmp/f
+
+if [[ $MUTED == 'yes' ]];
+then
     ICON=$ICON_VOL_MUTE
+    BAR_FG=$BAR_FG_OFF
 else
     ICON=$ICON_VOL
+    BAR_FG=$BAR_FG_ON
+    #ogg123 /usr/share/sounds/freedesktop/stereo/bell.oga
 fi
 
-#Using named pipe to determine whether previous call still exists
-#Also prevents multiple volume bar instances
 if [ ! -e "$PIPE" ]; then
     mkfifo "$PIPE"
-    (dzen2 -tw "$WIDTH" -h "$HEIGHT" -x "$XPOS" -y "$YPOS" -fn "$FONT" -bg "$BG" -fg "$FG" < "$PIPE"
+    (dzen2 -tw "$WIDTH" -h "$HEIGHT" -x $XPOS -y $YPOS -fn "$FONT" -bg "$BG" -fg "$FG" < "$PIPE"
     rm -f "$PIPE") &
 fi
 
-#Feed the pipe!
-(echo "$VOL" | gdbar -l "^i(${ICON})  " -fg "$BAR_FG" -bg "$BAR_BG" -w "$BAR_WIDTH" ; sleep "$SECS") > "$PIPE"
+(echo "$VOL" | gdbar -l "^i(${ICON}) $(printf "%03s" $VOL) " -fg "$BAR_FG" -bg "$BAR_BG" -w "$BAR_WIDTH" ; sleep "$SECS") > "$PIPE"
