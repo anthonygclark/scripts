@@ -1,5 +1,5 @@
 # Remember that functions that modify variables outside
-# their scope cannot be called in a subshell. ie - 
+# their scope cannot be called in a subshell. ie -
 # you cannot do `echo myf` if myf modifies vars outside
 # itself.
 REFRESH_RATE=4
@@ -72,7 +72,7 @@ BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 101 -sw 1 -nonl"
 CRIT_BAR_STYLE="-w 33 -h 10 -s o -ss 1 -max 20 -sw 5 -nonl"
 
 
-# -- Helpers {{{ 
+# -- Helpers {{{
 function print_seperator()
 {
     echo -n " $SEP"
@@ -88,15 +88,15 @@ function bar()
     echo "$1" | $BAR_EXEC $BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
 
-function crit_bar() 
+function crit_bar()
 {
     echo "$1" | $BAR_EXEC $CRIT_BAR_STYLE -fg $2 -bg $BAR_BG_COLOR
 }
-#}}} 
+#}}}
 
 
-# -- Battery {{{ 
-function battery() 
+# -- Battery {{{
+function battery()
 {
     local ret=""
     local acpi_=$(acpi -b)
@@ -106,11 +106,11 @@ function battery()
     case "$status_" in
         "Charging")     ret="$(icon $BATTERY_CHARGING_ICON)"    ;;
         "Discharging")  ret="$(icon $BATTERY_DISCHARGING_ICON)" ;;
-        *)              ret="$(icon $BATTERY_MISSING_ICON)"     ;; 
+        *)              ret="$(icon $BATTERY_MISSING_ICON)"     ;;
     esac
 
-    if [[ -n $percent_ ]] ; 
-    then 
+    if [[ -n $percent_ ]] ;
+    then
         if (( percent_ <= $CRITICAL_PERCENTAGE )) ; then
             ret="$ret $(crit_bar $percent_ $BAR_CRITICAL_COLOR)"
         else
@@ -124,14 +124,14 @@ function battery()
 
 
 # -- Wireless {{{
-function wireless() 
+function wireless()
 {
     local ret="$(icon $WIRELESS_ICON)"
-    
+
     if grep $IFACE /proc/net/wireless &>/dev/null ;
     then
         local quality_=$(grep $IFACE /proc/net/wireless | cut -d ' ' -f 5 | tr -d '.')
-        
+
         if (( $quality_ <= $CRITICAL_PERCENTAGE ));
         then
             ret="$ret $(BAR_STYLE=$WIFI_BAR_STYLE crit_bar $quality_ $BAR_CRITICAL_COLOR)"
@@ -141,7 +141,7 @@ function wireless()
     else
         ret="$(ICON_COLOR=$RED icon $WIRELESS_ICON) $(BAR_STYLE=$WIFI_BAR_STYLE bar 100 $BAR_OFF_COLOR)"
     fi
-    
+
     echo -n "^ca(1, wicd-gtk -n &>>/dev/null)${ret}^ca()"
 }
 #}}}
@@ -165,33 +165,36 @@ function volume()
 
 
 # -- Clock {{{
-function clock() 
+function clock()
 {
     echo "^fg($WHITE)$(date +"$CLOCK_FORMAT")^fg() "
 }
 #}}}
 
 
-# -- Nvidia {{{ 
+# -- Nvidia {{{
 function nvidia()
 {
     local ret="$(icon $GPU_ICON) GPU:"
-    if grep "nvidia" <<< $(lsmod)  &>/dev/null; then 
+
+    if grep "nvidia" <<< $(lsmod) &>/dev/null; then
         ret="$ret $(nvidia-settings -q gpucoretemp -t)"
     else
         ret="$ret OFF"
     fi
+
     echo -n "$ret"
 }
 #}}}
 
- 
-# -- Hard disks {{{  
+
+# -- Hard disks {{{
 function hdd()
 {
     local used=$(df | grep "$1" | awk '{print $5}' | cut -d% -f1)
 
-    if (( $(bc <<< "$used >= 75") )); then
+    if (( $(bc <<< "$used >= 75") )); 
+    then
         echo -n "$(ICON_COLOR=$YELLOW icon $HDD_ICON) $used%"
     else
         echo -n "$(icon $HDD_ICON) $used%"
@@ -200,13 +203,14 @@ function hdd()
 # }}}
 
 
-# -- Memory {{{ 
-function mem() 
+# -- Memory {{{
+function mem()
 {
     local used=$(free -t | head -2 | tail -1 | awk '{print 100-int(($7/$2)*100)}')
     #echo (( 100 - $used )) >> /tmp/f
 
-    if (( $(bc <<< "$used >= 75") )); then
+    if (( $(bc <<< "$used >= 75") )); 
+    then
         echo -n "$(ICON_COLOR=$YELLOW icon $MEM_ICON) $used%"
     else
         echo -n "$(icon $MEM_ICON) $used%"
@@ -216,7 +220,7 @@ function mem()
 #}}}
 
 
-# -- Network {{{ 
+# -- Network {{{
 function net()
 {
     #TODO check iface
@@ -234,6 +238,7 @@ function net()
 # -- CPU {{{
 PREV_TOTAL=0
 PREV_IDLE=0
+
 function cpu()
 {
     local CPU=($(cat /proc/stat | grep '^cpu '))
@@ -262,35 +267,44 @@ function cpu()
 DB_COLOR=$YELLOW
 DB_CACHE="connecting..."
 DB_COUNTER=0
-DB_INTERVAL=2 
+DB_INTERVAL=2
+
 function dbox()
 {
-    if [[ $DB_COUNTER -lt $DB_INTERVAL ]]; then
+    if [[ $DB_COUNTER -lt $DB_INTERVAL ]]; 
+    then
         echo -n "$(ICON_COLOR=$DB_COLOR icon $DBOX_ICON) $DB_CACHE"
         DB_COUNTER=$((DB_COUNTER+1))
         return
     fi
-    
+
     DB_COUNTER=0
 
-    local _res="$(dropbox-cli status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
-    local _lres=${_res,,}
-    DB_CACHE=${_lres}
-
-    if [[ $_lres =~ "isn't" ]]; then
-        DB_CACHE="off"
+    # fail if command doesnt exist
+    if ! command dropbox-cli &> /dev/null;
+    then
+        DB_CACHE="N/A"
         DB_COLOR=$RED
-    elif [[ $_lres =~ "up to date" ]]; then
-        DB_CACHE="on"
-        DB_COLOR=$GREEN
-    elif [[ $_lres =~ "download" ]]; then
-        DB_COLOR=$YELLOW
-    elif [[ $_lres =~ "remaining" ]]; then
-        DB_COLOR=$YELLOW
-    elif [[ $_lres =~ "connecting" ]]; then
-        DB_COLOR=$YELLOW
     else
-        DB_COLOR=$ICON_COLOR
+        local _res="$(dropbox-cli status | sed  's/.*(\(.*\)).*/\1/' | head -1)"
+        local _lres=${_res,,}
+        DB_CACHE=${_lres}
+
+        if [[ $_lres =~ "isn't" ]]; then
+            DB_CACHE="off"
+            DB_COLOR=$RED
+        elif [[ $_lres =~ "up to date" ]]; then
+            DB_CACHE="on"
+            DB_COLOR=$GREEN
+        elif [[ $_lres =~ "download" ]]; then
+            DB_COLOR=$YELLOW
+        elif [[ $_lres =~ "remaining" ]]; then
+            DB_COLOR=$YELLOW
+        elif [[ $_lres =~ "connecting" ]]; then
+            DB_COLOR=$YELLOW
+        else
+            DB_COLOR=$ICON_COLOR
+        fi
     fi
 
     echo -n "$(ICON_COLOR=$DB_COLOR icon $DBOX_ICON) $DB_CACHE"
@@ -298,4 +312,4 @@ function dbox()
 # }}}
 
 
-# vim: foldmethod=marker : 
+# vim: foldmethod=marker :
