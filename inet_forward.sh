@@ -3,14 +3,27 @@
 # Used for sharing internet connections and
 # intranets with only 1 WAN connection.
 
-# Must allow ip_forwarding
-# sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+IN=$1
+OUT=$2
+SUBNET=$3
 
-DHCP_OUT=enp3s0
-WAN_IN=wlp0s29u1u1
+function usage()
+{
+    cat << EOF
+Usage: $(basename $0) <src if> <dst if> <subnet>
+    example, $(basename $0) eth0 eth1 192.168.0.0/16
+EOF
+}
+
+if [[ -z $1 ]] || [[ -z $2 ]] || [[ -z $3 ]] ; then
+    usage
+    exit 1
+fi
 
 sudo -v || exit 1
 
-sudo iptables -A FORWARD -o ${DHCP_OUT} -i ${WAN_IN} -s 192.168.0.0/16 -m conntrack --ctstate NEW -j ACCEPT
+sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+
+sudo iptables -A FORWARD -o ${OUT} -i ${IN} -s ${SUBNET} -m conntrack --ctstate NEW -j ACCEPT
 sudo iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 sudo iptables -A POSTROUTING -t nat -j MASQUERADE

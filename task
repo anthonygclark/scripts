@@ -5,14 +5,18 @@ source $(dirname $(readlink -m $0))/task_source
 
 [[ $# -lt 1 ]] && {
 cat << EOF
-task - Run command(s) with output to file/stream with progress indicator
-Usage: task <commands string> [logfile]
+task - Run command(s) with output to
+       file/stream with progress indicator
+
+Usage: task <commands string> [log file]
+    log file will default to /dev/null.
 EOF
 exit 1
 }
 
 commands=$1
 
+# chops command preview to 25 chars
 function message()
 {
     local s=${commands:0:25}
@@ -22,8 +26,10 @@ function message()
     printf "%s" "$s"
 }
 
-if [[ "$commands" =~ "sudo" ]]; then
+# If the command contains sudo, authorize first
+if [[ "$commands" =~ "sudo" ]];
+then
     sudo -v || exit 1
 fi
 
-eval "$commands" &>> $logFile & waitProgress "$(message)" || echo "Command failed"
+eval "$commands" &>> $logFile & waitProgress "$(message) > $logFile" || echo "Command failed"
