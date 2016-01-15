@@ -1,8 +1,9 @@
 #!/bin/bash
 SRC="/home/anthony/Music/"
+
 dests=(
-    "anthony@mini:~/Music/Music"
-    #"anthony@server:/var/Music"
+"anthony@mini:~/Music/Music"
+#"anthony@server:/var/Music"
 )
 
 function _err()
