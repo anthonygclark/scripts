@@ -120,7 +120,7 @@ class XKCD_UI(wx.Frame):
 		img_box.Add(img)
 		
 		# Add hsizers to vbox
-		vbox.Add(text_box, proportion=1, flag=wx.RIGHT | wx.LEFT | wx.TOP, border=10)
+		vbox.Add(text_box, proportion=0, flag=wx.RIGHT | wx.LEFT | wx.TOP, border=10)
 		vbox.Add((-1, 10))
 		vbox.Add(img_box, proportion=0, flag=wx.ALL, border=10)
 		

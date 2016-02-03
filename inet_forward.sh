@@ -2,6 +2,8 @@
 # Forwards network traffic to an interface.
 # Used for sharing internet connections and
 # intranets with only 1 WAN connection.
+#
+# Note: Only tested on archlinux
 
 IN=$1
 OUT=$2
