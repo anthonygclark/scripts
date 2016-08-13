@@ -65,6 +65,7 @@ function _vim()
     rm -rf ${REPO}/.vim/bundle/*
     git submodule init
     git submodule update
+    git submodule foreach git pull origin master
     true
 } >>$logFile
 
@@ -77,7 +78,7 @@ function _clean()
 
 function _remove_nested_git()
 {
-    find . -path '*/*/.git' -exec rm -r {} \;
+    find . -type d -path '*/*/.git' -exec rm -r {} \;
 } >>$logFile
 
 
@@ -86,7 +87,7 @@ _remove_nested_git & waitProgress "Removing nested git dirs"
 
 _copy    & waitProgress "Copying Dotfiles"
 _weechat & waitProgress "Sanitizing Weechat"
-_vim     & waitProgress "Cleaning vundle"
+_vim     & waitProgress "Cleaning vundle, adding submodule"
 
 _remove_nested_git & waitProgress "Removing nested git dirs"
 

@@ -15,5 +15,5 @@ branch="$2"
     exit 1
 }
 
-git log "$branch" --pretty=format:'%Cgreen%h | %Cblue%an | %Creset- %s' -30 | column -t -s '|' 2>/dev/null
+git log "$branch" --pretty=format:'%Cgreen%h | %Cblue%an | %Cred%ad | %Creset- %s' -30 | column -t -s '|' 2>/dev/null
 exit 0

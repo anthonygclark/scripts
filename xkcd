@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
-# TODO remove image cache as we have to 
+# TODO remove image cache as we have to
 # get the webpage anyway for the text
 
 import wx
@@ -107,10 +107,12 @@ class XKCD_UI(wx.Frame):
 		img = wx.StaticBitmap(self, 1, wx.Bitmap(self.image_dest, wx.BITMAP_TYPE_ANY))
 		st2 = wx.StaticText(self, 1, label='#{}: {}'.format(self.comic_num, self.image_text))
 		st2.SetFont(font)
-		
+		## Wrap text to image width
+		st2.Wrap(self._get_image_size()[0])
+
 		# Vertical sizer, text on top, Bitmap on bottom
 		vbox = wx.BoxSizer(wx.VERTICAL)
-		
+
 		# horizontal sizer, text
 		text_box = wx.BoxSizer(wx.HORIZONTAL)
 		text_box.Add(st2)
@@ -118,12 +120,12 @@ class XKCD_UI(wx.Frame):
 		# horizontal sizer, bitmap
 		img_box = wx.BoxSizer(wx.HORIZONTAL)
 		img_box.Add(img)
-		
+
 		# Add hsizers to vbox
 		vbox.Add(text_box, proportion=0, flag=wx.RIGHT | wx.LEFT | wx.TOP, border=10)
 		vbox.Add((-1, 10))
 		vbox.Add(img_box, proportion=0, flag=wx.ALL, border=10)
-		
+
 		self.SetSizerAndFit(vbox)
 
 # private
@@ -146,9 +148,6 @@ class XKCD_UI(wx.Frame):
 
 if __name__ == '__main__':
 	app = wx.App()
-
 	comic_num = ((len(sys.argv) > 1) and sys.argv[1]) or ''
-	x = XKCD(comic_num)
-	ui = XKCD_UI(None, x)
-
+	ui = XKCD_UI(None, (XKCD(comic_num)))
 	app.MainLoop()

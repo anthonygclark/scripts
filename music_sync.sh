@@ -2,7 +2,7 @@
 SRC="/home/anthony/Music/"
 
 dests=(
-"anthony@mini:~/Music/Music"
+"anthony@mini:~/Music/iTunes/iTunes Media/Music"
 #"anthony@server:/var/Music"
 )
 
