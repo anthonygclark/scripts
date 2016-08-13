@@ -3,7 +3,13 @@ source $(dirname $(readlink -m $0))/../dzen_common.sh
 
 function get_wifi_interface()
 {
-    echo $(cat /proc/net/wireless | tail -1 | cut -d: -f1)
+    local f="$(cat /proc/net/wireless | tail -1 | cut -d: -f1)"
+
+    if [[ "$f" =~ "face" ]] ; then
+        echo "lo"
+    else
+        echo $f
+    fi
 }
 
 IFACE=$(get_wifi_interface)

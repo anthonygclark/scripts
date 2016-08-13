@@ -178,7 +178,8 @@ function nvidia()
     local ret="$(icon $GPU_ICON) GPU:"
 
     if grep "nvidia" <<< $(lsmod) &>/dev/null; then
-        ret="$ret $(nvidia-settings -q gpucoretemp -t)"
+        ret="$ret ON"
+        #ret="$ret $(nvidia-settings -q gpucoretemp -t)"
     else
         ret="$ret OFF"
     fi
