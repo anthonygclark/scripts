@@ -13,24 +13,23 @@ function fail()
 #sudo -v || fail "sudo"
 
 DARK=(
-d64937
-f44336
-ee382f
-c6180b
-f2291a
-f33628
 b8160a
-f01d0d
-e91e14
-db1c12
-cc1a11
-ec2a20
 be1810
+c6180b
+cc1a11
+db1c12
+e21b0c
+e91e14
+e91e14
+ec2a20
+ec2a20
+ee382f
 ee382f
 ef463d
-ec2a20
-e91e14
-e21b0c
+f01d0d
+f2291a
+f33628
+f44336
 )
 
 MED=(
@@ -38,6 +37,9 @@ f0544c
 f1625b
 f1544D
 f5584d
+ee534cf7786f
+f7786ff26a63
+f58c86
 )
 
 LIGHT=(
@@ -46,8 +48,9 @@ f26a63
 f58c86
 )
 
-#cd /usr/share/themes/Numix || fail "cd"
-cd ~/.themes/Numix
+
+cd /usr/share/themes/Numix || fail "cd"
+#cd ~/.themes/Numix
 
 for i in ${DARK[@]}; 
 do 
