@@ -33,7 +33,7 @@ SEPERATOR_COLOR=$MED_GRAY
 FONT="-*-cure-medium-r-*-*-12-*-*-*-*-*-*-*"
 SEP="^fg($SEPERATOR_COLOR)| ^fg()"
 
-WIDTH=700
+WIDTH=900
 HEIGHT=13
 TEXT_ALIGNMENT="right"
 
@@ -118,7 +118,7 @@ function battery()
         fi
     fi
 
-    echo -n "$ret"
+    echo -n "(${percent_## }%) $ret"
 }
 # }}}
 
@@ -229,7 +229,7 @@ function net()
     TXBN=$(cat /sys/class/net/${IFACE}/statistics/tx_bytes)
     local NEW_RX=$(bc <<< "($RXBN - $RXB) / 1024 / $REFRESH_RATE")
     local NEW_TX=$(bc <<< "($TXBN - $TXB) / 1024 / $REFRESH_RATE")
-    echo -n "($IFACE) $(icon $DOWN_ICON) ${NEW_RX}kB/s $(icon $UP_ICON) ${NEW_TX}kB/s"
+    printf "(%s) %s %6dkB/s %s %6dkB/s" ${IFACE} $(icon $DOWN_ICON) ${NEW_RX} $(icon $UP_ICON) ${NEW_TX}
     RXB=$(($RXBN))
     TXB=$(($TXBN))
 }

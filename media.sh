@@ -68,7 +68,9 @@ do
     (( counter++ ))
 done
 
-(( $ACTIVE_PLAYER == -1 )) && exit 0
+(( $ACTIVE_PLAYER == -1 )) && {
+    notify-send -a "Media" "No active media players"
+}
 
 case "$1" in
     $STOP_sym) ${STOP_COMMANDS[$ACTIVE_PLAYER]} ;;

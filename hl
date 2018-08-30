@@ -1,4 +1,4 @@
 #!/bin/bash
 TYPE=${1:-txt}; 
 COLOR=${2:-"kellys"}
-highlight -l -S $TYPE --style=$COLOR -O xterm256 3<&0 || cat 3<&0
+highlight -l -S $TYPE -F google --style=$COLOR -O xterm256 3<&0 || cat 3<&0
